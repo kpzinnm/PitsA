@@ -156,7 +156,24 @@ public class EstabelecimentoControllerTests {
             );
         }
 
-        /*@Test
+        @Test
+        @DisplayName("Quando deletamos um estabelecimento com codigo de acesso inválido")
+        void quandoDeltamarEstabelecimentoInvalido() throws Exception {
+
+            String responseJsonString = driver.perform(delete(URI_ESTABELECIMENTOS + "/" + estabelecimento.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("codigoAcesso", "741963"))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage());
+
+        }
+
+        @Test
         @DisplayName("Quando criamos um novo estabelecimento com dados inválidos")
         void quandoCriarEstabelecimentoInvalido() throws Exception {
             // Arrange
@@ -183,6 +200,47 @@ public class EstabelecimentoControllerTests {
         }
 
         @Test
+        @DisplayName("Quando deletamos um estabelecimento que não existe")
+        void quandoDeltamarEstabelecimentoInexistente() throws Exception {
+
+            String responseJsonString = driver.perform(delete(URI_ESTABELECIMENTOS + "/" + 4L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", estabelecimento.getCodigoAcesso()))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            assertEquals("Estabelecimento não existe", resultado.getMessage());
+
+        }
+
+        @Test
+        @DisplayName("Quando alteramos um estabelecimento com codigo de acesso inválido")
+        void quandoAlterarEstabelecimentoInexistente() throws Exception {
+            // Arrange
+            EstabelecimentoPostPutRequestDTO estabelecimentoPostPutRequestDTO = EstabelecimentoPostPutRequestDTO.builder()
+                    .codigoAcesso("134697")
+                    .build();
+
+            // Act
+            String responseJsonString = driver.perform(put(URI_ESTABELECIMENTOS + "/" + 4L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", estabelecimento.getCodigoAcesso())
+                            .content(objectMapper.writeValueAsString(estabelecimentoPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest()) // Codigo 400
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            // Assert
+            assertEquals("Estabelecimento não existe", resultado.getMessage());
+
+        }
+
+        /*@Test
         @DisplayName("Quando buscamos o cardapio de um estabelecimento")
         void quandoBuscarCardapioEstabelecimento() throws Exception {
             // Arrange

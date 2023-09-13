@@ -25,13 +25,13 @@ public class EstabelecimentoController {
     private EstabelecimentoDeletarService estabelecimentoDeletarService;
 
     @Autowired
-    private EstabelecimentoConsultarService estabelecimentoConsultarService;
-
-    @Autowired
     private EstabelecimentoAtualizarService estabelecimentoAtualizarService;
 
     @Autowired
     private EstabelecimentoValidarCodigoService estabelecimentoValidarCodigoService;
+
+    @Autowired
+    private EstabelecimentoValidarId estabelecimentoValidarId;
 
     private ModelMapper modelMapper;
 
@@ -49,7 +49,7 @@ public class EstabelecimentoController {
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletarEstabelecimento(@Valid @PathVariable Long id, @RequestParam("codigoAcesso") String codigoAcesso) {
         ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        if(estabelecimentoValidarCodigoService.estabelecimentoValidaCodigoAcesso(id, codigoAcesso)){
+        if(validador(id, codigoAcesso)){
             this.estabelecimentoDeletarService.deletarEstabelecimento(id);
             out = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
@@ -57,13 +57,17 @@ public class EstabelecimentoController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> atualizarEstabelecimento(@Valid @PathVariable Long id, @RequestBody EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO, @RequestParam("codigoAcesso") String codigoAcesso){
-        //ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        if(estabelecimentoValidarCodigoService.estabelecimentoValidaCodigoAcesso(id, codigoAcesso)){
-            return ResponseEntity.status(HttpStatus.OK)
+    public ResponseEntity<?> atualizarEstabelecimento(@PathVariable Long id, @RequestBody @Valid EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
+        ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(validador(id, codigoAcesso)){
+            out = ResponseEntity.status(HttpStatus.OK)
                     .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return out;
+    }
+
+    private Boolean validador(Long id, String codigoAcesso){
+        return (estabelecimentoValidarId.validarId(id) && estabelecimentoValidarCodigoService.estabelecimentoValidaCodigoAcesso(id, codigoAcesso));
     }
 
 }

@@ -6,13 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarService {
+public class EstabelecimentoV1ValidarId implements EstabelecimentoValidarId {
 
     @Autowired
     private EstabelecimentoRepository repository;
 
     @Override
-    public void deletarEstabelecimento(Long id) {
-        this.repository.deleteById(id);
+    public Boolean validarId(Long id) {
+        if(!(this.repository.existsById(id)))
+            throw new EstabelecimentoNaoExisteException();
+
+        return Boolean.TRUE;
     }
 }

@@ -25,7 +25,6 @@ public class CustomErrorType {
         this.timestamp = LocalDateTime.now();
         this.message = e.getMessage();
         this.errors = new ArrayList<>();
-       // this.errors.add(e.getError());
     }
 
 }
