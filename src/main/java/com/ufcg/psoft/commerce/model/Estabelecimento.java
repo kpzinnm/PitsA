@@ -12,7 +12,7 @@ O código de acesso deve ser informado sempre que se faz alguma operação enqua
 Se o código de acesso não for informado ou estiver incorreto,	 a operação irá obrigatoriamente falhar.
 Não há limite para o número de operações com inserção de código incorreto.*/
 
-@Entity
+@Entity(name = "Estabelecimento")
 @Data
 @Builder
 @AllArgsConstructor

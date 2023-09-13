@@ -3,6 +3,7 @@ package com.ufcg.psoft.commerce.exception;
 public class EstabelecimentoCodigoAcessoInvalidoException extends CommerceException{
 
     public EstabelecimentoCodigoAcessoInvalidoException(){
-        super("Codigo de acesso deve ter 6 digitos");
+        super("Erros de validacao encontrados");
+       // super.serError("Codigo de acesso deve ter exatamente 6 digitos numericos");
     }
 }

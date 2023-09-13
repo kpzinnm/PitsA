@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EstabelecimentoPostPutRequestDTO {
 
-    @JsonProperty("codigo")
+    @JsonProperty("codigoAcesso")
     private String codigoAcesso;
 
 }

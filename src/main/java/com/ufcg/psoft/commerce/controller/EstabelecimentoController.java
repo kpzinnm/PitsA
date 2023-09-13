@@ -58,12 +58,12 @@ public class EstabelecimentoController {
 
     @PutMapping("{id}")
     public ResponseEntity<?> atualizarEstabelecimento(@Valid @PathVariable Long id, @RequestBody EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO, @RequestParam("codigoAcesso") String codigoAcesso){
-        ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        //ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         if(estabelecimentoValidarCodigoService.estabelecimentoValidaCodigoAcesso(id, codigoAcesso)){
-            out = ResponseEntity.status(HttpStatus.OK)
+            return ResponseEntity.status(HttpStatus.OK)
                     .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO));
         }
-        return out;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 }

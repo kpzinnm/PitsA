@@ -17,7 +17,10 @@ public class EstabelecimentoV1AtualizarService implements EstabelecimentoAtualiz
     public Estabelecimento atualizarEstabelecimento(Long id, EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO) {
         Estabelecimento estabelecimento = this.repository.findById(id).get();
         if(estabelecimentoPutRequestDTO.getCodigoAcesso().length() == 6){
-            estabelecimento.setCodigoAcesso(estabelecimento.getCodigoAcesso());
+            estabelecimento = Estabelecimento.builder()
+                    .id(estabelecimento.getId())
+                    .codigoAcesso(estabelecimentoPutRequestDTO.getCodigoAcesso())
+                    .build();
             return estabelecimento;
         } else {
             throw new EstabelecimentoCodigoAcessoInvalidoException();

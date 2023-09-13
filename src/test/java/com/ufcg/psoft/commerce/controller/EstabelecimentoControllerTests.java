@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoResponseDTO;
+import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import org.junit.jupiter.api.*;
@@ -129,7 +130,7 @@ public class EstabelecimentoControllerTests {
             );
         }
 
-        /*@Test
+        @Test
         @DisplayName("Quando alteramos um estabelecimento com codigo de acesso inválido")
         void quandoAlterarEstabelecimentoInvalido() throws Exception {
             // Arrange
@@ -155,7 +156,7 @@ public class EstabelecimentoControllerTests {
             );
         }
 
-        @Test
+        /*@Test
         @DisplayName("Quando criamos um novo estabelecimento com dados inválidos")
         void quandoCriarEstabelecimentoInvalido() throws Exception {
             // Arrange
