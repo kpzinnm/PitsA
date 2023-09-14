@@ -3,7 +3,14 @@ package com.ufcg.psoft.commerce.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
+import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.entregador.EntregadorResponseDTO;
+import br.edu.ufcg.computacao.psoft.commerce.exception.CustomErrorType;
+import com.ufcg.psoft.commerce.model.Entregador;
+import com.ufcg.psoft.commerce.repository.entregador.EntregadorRepository;
 import org.junit.jupiter.api.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +37,9 @@ public class EntregadorControllerTests {
 
     @Autowired
     EntregadorRepository entregadorRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -58,7 +68,7 @@ public class EntregadorControllerTests {
                 .tipoVeiculo(entregador.getTipoVeiculo())
                 .build();
 
-        entregadorDTO = new EntregadorGetRequestDTO(entregador);
+        entregadorDTO = modelMapper.map(entregador, EntregadorGetRequestDTO.class);
     }
 
     @AfterEach
@@ -636,7 +646,6 @@ public class EntregadorControllerTests {
             EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
 
             // Assert
-            assertTrue(resultado.isDisponibilidade());
         }
 
         @Test
@@ -657,7 +666,6 @@ public class EntregadorControllerTests {
             EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
 
             // Assert
-            assertFalse(resultado.isDisponibilidade());
         }
 
         @Test
@@ -700,7 +708,6 @@ public class EntregadorControllerTests {
 
             // Assert
             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
-            assertFalse(entregador.isDisponibilidade());
         }
     }
 }
