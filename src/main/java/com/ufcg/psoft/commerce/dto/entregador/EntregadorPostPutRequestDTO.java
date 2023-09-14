@@ -24,11 +24,11 @@ public class EntregadorPostPutRequestDTO {
     @JsonProperty("tipoVeiculo")
     private String tipoVeiculo;
 
-    @NotBlank(message = "Cor do veiculo Obrigatoria")
+    @NotBlank(message = "Cor do veiculo obrigatoria")
     @JsonProperty("corVeiculo")
     private String corVeiculo;
 
-    @NotBlank(message = "Codigo de acesso Obrigatorio")
+    @NotBlank(message = "Codigo de acesso obrigatorio")
     @JsonProperty("codigoAcesso")
     private String codigoAcesso;
 }

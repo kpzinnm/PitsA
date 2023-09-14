@@ -13,9 +13,12 @@ public class EntregadorV1CriarService implements EntregadorCriarService{
     EntregadorRepository entregadorRepository;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    EntregadorVerificaTipoVeiculo entregadorVerificaTipoVeiculo;
 
     @Override
     public Entregador criaEntregador(EntregadorPostPutRequestDTO entregadorPostPutRequestDto) {
+        entregadorVerificaTipoVeiculo.verificaTipoVeiculo(entregadorPostPutRequestDto);
         return entregadorRepository.save(modelMapper.map(entregadorPostPutRequestDto, Entregador.class));
     }
 }

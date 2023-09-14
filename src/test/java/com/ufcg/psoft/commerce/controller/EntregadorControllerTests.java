@@ -1,12 +1,14 @@
 package com.ufcg.psoft.commerce.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorResponseDTO;
-import br.edu.ufcg.computacao.psoft.commerce.exception.CustomErrorType;
+import com.ufcg.psoft.commerce.exception.CommerceException;
+import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.repository.entregador.EntregadorRepository;
 import org.junit.jupiter.api.*;
@@ -16,7 +18,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -159,7 +164,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("O entregador consultado nao existe!", resultado.getMessage());
+            assertEquals("Entregador não cadastrado", resultado.getMessage());
         }
 
         @Test
@@ -189,12 +194,12 @@ public class EntregadorControllerTests {
 
         @Test
         @DisplayName("Quando alteramos o entregador com dados válidos")
-        void quandoAlteramosEntregadorValido() throws Exception {
+        void quandoAlteramosEntregadorValido() throws JsonProcessingException, UnsupportedEncodingException, Exception {
             // Arrange
             Long entregadorId = entregador.getId();
 
             // Act
-            String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/" + entregador.getId())
+            String responseJsonString = driver.perform(MockMvcRequestBuilders.put(URI_ENTREGADORES + "/" + entregador.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("codigoAcesso", entregador.getCodigoAcesso())
                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
@@ -221,7 +226,7 @@ public class EntregadorControllerTests {
             // nenhuma necessidade além do setup()
 
             // Act
-            String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/999999")
+            String responseJsonString = driver.perform(MockMvcRequestBuilders.put(URI_ENTREGADORES + "/999999")
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("codigoAcesso", entregador.getCodigoAcesso())
                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
@@ -232,7 +237,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("O entregador consultado nao existe!", resultado.getMessage());
+            assertEquals("Entregador não cadastrado", resultado.getMessage());
         }
 
         @Test
@@ -253,7 +258,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
 
         @Test
@@ -291,7 +296,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("O entregador consultado nao existe!", resultado.getMessage());
+            assertEquals("Entregador não cadastrado", resultado.getMessage());
         }
 
         @Test
@@ -311,7 +316,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
 
@@ -361,7 +366,7 @@ public class EntregadorControllerTests {
             // Assert
             assertAll(
                     () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                    () -> assertEquals("Nome e obrigatorio", resultado.getErrors().get(0))
+                    () -> assertEquals("Nome do entregador obrigatorio", resultado.getErrors().get(0))
             );
         }
 
@@ -383,7 +388,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
 
@@ -432,7 +437,7 @@ public class EntregadorControllerTests {
             // Assert
             assertAll(
                     () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                    () -> assertEquals("Placa do veiculo e obrigatoria", resultado.getErrors().get(0))
+                    () -> assertEquals("Placa do veiculo obrigatoria", resultado.getErrors().get(0))
             );
         }
 
@@ -454,7 +459,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
 
@@ -503,7 +508,7 @@ public class EntregadorControllerTests {
             // Assert
             assertAll(
                     () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                    () -> assertEquals("Tipo do veiculo e obrigatorio", resultado.getErrors().get(0))
+                    () -> assertEquals("Tipo do veiculo obrigatorio", resultado.getErrors().get(0))
             );
         }
 
@@ -526,8 +531,7 @@ public class EntregadorControllerTests {
 
             // Assert
             assertAll(
-                    () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                    () -> assertEquals("Tipo do veiculo deve ser moto ou carro", resultado.getErrors().get(0))
+                    () -> assertEquals("Tipo do veiculo deve ser moto ou carro", resultado.getMessage())
             );
         }
 
@@ -549,7 +553,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
 
@@ -598,7 +602,7 @@ public class EntregadorControllerTests {
             // Assert
             assertAll(
                     () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                    () -> assertEquals("Cor do veiculo e obrigatoria", resultado.getErrors().get(0))
+                    () -> assertEquals("Cor do veiculo obrigatoria", resultado.getErrors().get(0))
             );
         }
 
@@ -620,7 +624,7 @@ public class EntregadorControllerTests {
             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
             // Assert
-            assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
 
@@ -670,7 +674,7 @@ public class EntregadorControllerTests {
 
         @Test
         @DisplayName("Quando alteramos a disponibilidade de um entregador inexistente")
-        void quandoAlteramosDisponibilidadeDeEntregadorInexistente() throws Exception {
+        void quandoAlteramosDisponibilidadeDeEntregadorInexistente() throws JsonProcessingException, UnsupportedEncodingException, Exception {
             // Arrange
 
             // Act

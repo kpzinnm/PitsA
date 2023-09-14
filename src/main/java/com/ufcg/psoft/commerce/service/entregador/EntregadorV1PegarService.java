@@ -1,7 +1,7 @@
 package com.ufcg.psoft.commerce.service.entregador;
 
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
-import com.ufcg.psoft.commerce.exception.entregador.EntregadorNaoCadastradoException;
+import com.ufcg.psoft.commerce.exception.EntregadorNaoCadastradoException;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.repository.entregador.EntregadorRepository;
 import org.modelmapper.ModelMapper;
@@ -33,6 +33,7 @@ public class EntregadorV1PegarService implements EntregadorPegarService{
     public List<EntregadorGetRequestDTO> PegaTodosEntregadores() {
         List<Entregador> entregadores = entregadorRepository.findAll();
         List<EntregadorGetRequestDTO> entregadoresResponse = new ArrayList<>();
+
         for(Entregador entregador: entregadores){
             entregadoresResponse.add(modelMapper.map(entregador, EntregadorGetRequestDTO.class));
         }

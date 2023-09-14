@@ -1,4 +1,4 @@
-package br.edu.ufcg.computacao.psoft.commerce.exception;
+package com.ufcg.psoft.commerce.exception;
 
 public class CommerceException extends RuntimeException {
     public CommerceException() {

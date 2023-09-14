@@ -1,4 +1,4 @@
-package br.edu.ufcg.computacao.psoft.commerce.exception;
+package com.ufcg.psoft.commerce.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
