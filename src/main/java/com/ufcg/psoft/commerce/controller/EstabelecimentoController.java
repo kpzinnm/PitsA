@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/estabelecimentos")
 public class EstabelecimentoController {
@@ -28,10 +26,7 @@ public class EstabelecimentoController {
     private EstabelecimentoAtualizarService estabelecimentoAtualizarService;
 
     @Autowired
-    private EstabelecimentoValidarCodigoService estabelecimentoValidarCodigoService;
-
-    @Autowired
-    private EstabelecimentoValidarId estabelecimentoValidarId;
+    private EstabelecimentoValidar estabelecimentoValidar;
 
     private ModelMapper modelMapper;
 
@@ -48,29 +43,20 @@ public class EstabelecimentoController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletarEstabelecimento(@Valid @PathVariable Long id, @RequestParam("codigoAcesso") String codigoAcesso) {
-        ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        if(validador(id, codigoAcesso)){
-            this.estabelecimentoDeletarService.deletarEstabelecimento(id);
-            out = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        this.estabelecimentoDeletarService.deletarEstabelecimento(id, codigoAcesso);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+    }
+        @PutMapping("{id}")
+        public ResponseEntity<?> atualizarEstabelecimento (@PathVariable Long
+        id, @RequestBody @Valid EstabelecimentoPutRequestDTO
+        estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
         }
-        return out;
-    }
-
-    @PutMapping("{id}")
-    public ResponseEntity<?> atualizarEstabelecimento(@PathVariable Long id, @RequestBody @Valid EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
-        ResponseEntity out = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        if(validador(id, codigoAcesso)){
-            out = ResponseEntity.status(HttpStatus.OK)
-                    .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO));
-        }
-        return out;
-    }
-
-    private Boolean validador(Long id, String codigoAcesso){
-        return (estabelecimentoValidarId.validarId(id) && estabelecimentoValidarCodigoService.estabelecimentoValidaCodigoAcesso(id, codigoAcesso));
-    }
-
 }
+
+
 
 
 

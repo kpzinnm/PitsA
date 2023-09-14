@@ -11,8 +11,12 @@ public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarSe
     @Autowired
     private EstabelecimentoRepository repository;
 
+    @Autowired
+    private EstabelecimentoValidar estabelecimentoValidar;
+
     @Override
-    public void deletarEstabelecimento(Long id) {
+    public void deletarEstabelecimento(Long id, String codigoAcesso) {
+        this.estabelecimentoValidar.validar(id, codigoAcesso);
         this.repository.deleteById(id);
     }
 }

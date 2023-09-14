@@ -6,5 +6,5 @@ import com.ufcg.psoft.commerce.model.Estabelecimento;
 @FunctionalInterface
 public interface EstabelecimentoAtualizarService {
 
-    public Estabelecimento atualizarEstabelecimento(Long id, EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO);
+    public Estabelecimento atualizarEstabelecimento(Long id, EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO, String codigoAcesso);
 }
