@@ -1,5 +1,7 @@
 package com.ufcg.psoft.commerce.dto.sabor;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
@@ -27,14 +29,19 @@ public class SaborPostPutRequestDTO {
     @JsonProperty("precoM")
     @NotNull(message = "O valor nao pode ser nulo")
     @Positive(message = "O valor deve ser maior que zero")
-    private double precoM;
+    private BigDecimal precoM;
 
     @JsonProperty("precoG")
     @NotNull(message = "O valor nao pode ser nulo")
     @Positive(message = "O valor deve ser maior que zero")
-    private double precoG;
+    private BigDecimal precoG;
 
     @JsonProperty("disponivel")
     @NotNull(message = "Obrigatorio informar a disponibilidade do sabor.")
-    private boolean disponivel;
+    private Boolean disponivel;
+
+
+    public Boolean isDisponivel(){
+        return getDisponivel();
+    }
 }

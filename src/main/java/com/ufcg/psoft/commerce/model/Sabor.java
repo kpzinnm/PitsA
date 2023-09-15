@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.model;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +26,7 @@ public class Sabor {
     @Id
     @JsonProperty("id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "pk_id_sabor")
     private Long id;
 
     @Column(nullable = false, name = "desc_nome", unique = true)
@@ -36,13 +39,21 @@ public class Sabor {
 
     @Column(nullable = false, name = "desc_precoM")
     @JsonProperty("precoM")
-    private double precoM;
+    private BigDecimal precoM;
 
     @Column(nullable = false, name = "desc_precoG")
     @JsonProperty("precoG")
-    private double precoG;
+    private BigDecimal precoG;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "bl_disponivel")
     @JsonProperty("disponivel")
-    private boolean disponivel;
+    private Boolean disponivel;
+
+    @JsonProperty("estabelecimentos")
+    @ManyToMany(mappedBy = "sabores")
+    private Set<Estabelecimento> estabelecimentos;
+
+    public Boolean isDisponivel(){
+        return getDisponivel();
+    }
 }

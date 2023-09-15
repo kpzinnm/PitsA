@@ -1,5 +1,7 @@
 package com.ufcg.psoft.commerce.dto.sabor;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -13,12 +15,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SaborResponseDTO {
 
+    @JsonProperty("id")
+    private Long id;
+
     @JsonProperty("nome")
     private String nome;
 
+    @JsonProperty("tipo")
+    private String tipo;
+
     @JsonProperty("precoM")
-    private double precoM;
+    private BigDecimal precoM;
 
     @JsonProperty("precoG")
-    private double precoG;
+    private BigDecimal precoG;
+
+    @JsonProperty("disponivel")
+    private Boolean disponivel;
+
+    public Boolean isDisponivel(){
+        return getDisponivel();
+    }
 }
