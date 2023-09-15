@@ -2,6 +2,7 @@ package com.ufcg.psoft.commerce.dto.entregador;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class EntregadorPostPutRequestDTO {
     private String corVeiculo;
 
     @NotBlank(message = "Codigo de acesso obrigatorio")
+    @Pattern(regexp = "\\d{6}", message = "O código de acesso deve conter exatamente 6 dígitos numericos")
     @JsonProperty("codigoAcesso")
     private String codigoAcesso;
 }

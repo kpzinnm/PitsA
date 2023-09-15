@@ -191,6 +191,70 @@ public class EntregadorControllerTests {
                     () -> assertEquals(entregadorPostPutRequestDTO.getTipoVeiculo(), resultado.getTipoVeiculo())
             );
         }
+        @Test
+        @DisplayName("Quando criamos um entregador com codigo de acesso contendo letras")
+        void quandoCriamosEntregadorComCodigoAcessoComLetras() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            entregadorPostPutRequestDTO.setCodigoAcesso("21A222");
+
+            // Act
+            String responseJsonString = driver.perform(post(URI_ENTREGADORES)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            assertAll(
+                    () -> assertEquals("O código de acesso deve conter exatamente 6 dígitos numericos", resultado.getErrors().get(0))
+            );
+        }
+
+        @Test
+        @DisplayName("Quando criamos um entregador com codigo de acesso menor que 6 digitos")
+        void quandoCriamosEntregadorComCodigoAcessoMenorQue6Digitos() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            entregadorPostPutRequestDTO.setCodigoAcesso("12222");
+
+            // Act
+            String responseJsonString = driver.perform(post(URI_ENTREGADORES)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            assertAll(
+                    () -> assertEquals("O código de acesso deve conter exatamente 6 dígitos numericos", resultado.getErrors().get(0))
+            );
+        }
+        @Test
+        @DisplayName("Quando criamos um entregador com codigo de acesso maior que 6 digitos")
+        void quandoCriamosEntregadorComCodigoAcessoMaiorQue6Digitos() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            entregadorPostPutRequestDTO.setCodigoAcesso("1222211");
+
+            // Act
+            String responseJsonString = driver.perform(post(URI_ENTREGADORES)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            assertAll(
+                    () -> assertEquals("O código de acesso deve conter exatamente 6 dígitos numericos", resultado.getErrors().get(0))
+            );
+        }
 
         @Test
         @DisplayName("Quando alteramos o entregador com dados válidos")
