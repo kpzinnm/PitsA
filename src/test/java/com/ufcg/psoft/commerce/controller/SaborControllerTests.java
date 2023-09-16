@@ -1,4 +1,4 @@
-/*package com.ufcg.psoft.commerce.controller;
+package com.ufcg.psoft.commerce.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -778,4 +778,4 @@ public class SaborControllerTests {
             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
         }
     }
-}*/
+}

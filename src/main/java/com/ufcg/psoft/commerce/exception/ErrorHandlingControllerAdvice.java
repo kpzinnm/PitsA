@@ -1,6 +1,5 @@
 package com.ufcg.psoft.commerce.exception;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,8 @@ public class ErrorHandlingControllerAdvice {
     /**
      * Define o formato padrão de definição do Erro que será
      * retornado pela API nesta Aplicação Web
-     * @param message - Mensagem de erro
-     * @return CustomErrorType - Tipo de erro personalizado
+     * @param message
+     * @return CustomErrorType
      */
     private CustomErrorType defaultCustomErrorTypeConstruct(String message) {
         return CustomErrorType.builder()
@@ -35,8 +34,8 @@ public class ErrorHandlingControllerAdvice {
      * Define o "manuseador" para quando, de qualquer parte da
      * Aplicação Web, uma exceção do tipo CommerceException
      * for lançada
-     * @param commerceException - Exceção Global do projeto Commerce
-     * @return CustomErrorType - Tipo de Erro Personalizado
+     * @param commerceException
+     * @return CustomErrorType
      */
     @ExceptionHandler(CommerceException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

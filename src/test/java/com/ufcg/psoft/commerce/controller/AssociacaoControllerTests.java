@@ -1,4 +1,4 @@
-/*package com.ufcg.psoft.commerce.controller;
+package com.ufcg.psoft.commerce.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -285,4 +285,3 @@ class AssociacaoControllerTests {
         }
     }
 }
-*/

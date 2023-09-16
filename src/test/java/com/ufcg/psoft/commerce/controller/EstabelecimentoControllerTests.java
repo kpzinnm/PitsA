@@ -240,7 +240,7 @@ public class EstabelecimentoControllerTests {
 
         }
 
-        /*@Test
+        @Test
         @DisplayName("Quando buscamos o cardapio de um estabelecimento")
         void quandoBuscarCardapioEstabelecimento() throws Exception {
             // Arrange
@@ -421,6 +421,6 @@ public class EstabelecimentoControllerTests {
             assertAll(
                     () -> assertEquals(2, resultado.size())
             );
-        }**/
+        }
     }
 }
