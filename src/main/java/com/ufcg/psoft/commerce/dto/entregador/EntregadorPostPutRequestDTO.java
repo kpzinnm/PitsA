@@ -22,7 +22,7 @@ public class EntregadorPostPutRequestDTO {
     private String placaVeiculo;
 
     @NotBlank(message = "Tipo do veiculo obrigatorio")
-    @JsonProperty("tipoVeiculo")
+        @JsonProperty("tipoVeiculo")
     private String tipoVeiculo;
 
     @NotBlank(message = "Cor do veiculo obrigatoria")

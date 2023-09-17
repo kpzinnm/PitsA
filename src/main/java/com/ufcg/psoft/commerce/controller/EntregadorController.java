@@ -2,15 +2,12 @@ package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
-import com.ufcg.psoft.commerce.model.Entregador;
-import com.ufcg.psoft.commerce.service.entregador.EntregadorAtualizarService;
-import com.ufcg.psoft.commerce.service.entregador.EntregadorCriarService;
-import com.ufcg.psoft.commerce.service.entregador.EntregadorDelatarService;
-import com.ufcg.psoft.commerce.service.entregador.EntregadorPegarService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorAtualizarService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorCriarService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorDelatarService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorPegarService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +41,7 @@ public class EntregadorController {
     public ResponseEntity<?> pegaEntrgador(
             @PathVariable("idEntregador") Long idEntregador
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(entregadorPegarService.PegaEntregador(idEntregador));
+        return ResponseEntity.status(HttpStatus.OK).body(entregadorPegarService.pegaEntregador(idEntregador));
     }
 
     @GetMapping

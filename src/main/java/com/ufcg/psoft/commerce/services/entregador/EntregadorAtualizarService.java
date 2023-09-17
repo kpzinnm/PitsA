@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.service.entregador;
+package com.ufcg.psoft.commerce.services.entregador;
 
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
