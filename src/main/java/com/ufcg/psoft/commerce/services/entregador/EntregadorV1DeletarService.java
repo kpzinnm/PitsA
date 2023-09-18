@@ -1,7 +1,7 @@
-package com.ufcg.psoft.commerce.service.entregador;
+package com.ufcg.psoft.commerce.services.entregador;
 
 import com.ufcg.psoft.commerce.exception.EntregadorNaoCadastradoException;
-import com.ufcg.psoft.commerce.repository.entregador.EntregadorRepository;
+import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
