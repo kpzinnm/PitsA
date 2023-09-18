@@ -1,6 +1,4 @@
 package com.ufcg.psoft.commerce.exception;
-
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
