@@ -1,5 +1,7 @@
 package com.ufcg.psoft.commerce.model;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -13,7 +15,7 @@ O código de acesso deve ser informado sempre que se faz alguma operação enqua
 Se o código de acesso não for informado ou estiver incorreto,	 a operação irá obrigatoriamente falhar.
 Não há limite para o número de operações com inserção de código incorreto.*/
 
-@Entity(name = "estabelecimento")
+@Entity(name = "estabelecimentos")
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,10 +25,13 @@ public class Estabelecimento {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "pk_id_estabelecimento")
+    @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("codigo")
-    @Column(name = "codigo", length = 6, nullable = false)
+    @JsonProperty("codigoAcesso")
+    @Column(name = "desc_codigoAcesso", length = 6, nullable = false)
     private String codigoAcesso;
 
+    @ManyToMany(mappedBy = "estabelecimentos")
+    private Set<Sabor> sabores;
 }

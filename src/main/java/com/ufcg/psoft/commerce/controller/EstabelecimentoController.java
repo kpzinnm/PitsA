@@ -47,13 +47,16 @@ public class EstabelecimentoController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
-        @PutMapping("{id}")
-        public ResponseEntity<?> atualizarEstabelecimento (@PathVariable Long
-        id, @RequestBody @Valid EstabelecimentoPutRequestDTO
-        estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
-        }
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> atualizarEstabelecimento (@PathVariable Long
+    id, @RequestBody @Valid EstabelecimentoPutRequestDTO
+    estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
+    }
+
+    
 }
 
 
