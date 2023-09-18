@@ -95,7 +95,7 @@ class AssociacaoControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Associacao resultado = objectMapper.readValue(responseJsonString, Associacao.class);
+            Associacao resultado = objectMapper.readValue(responseJsonString, Associacao.AssociacaoBuilder.class).build();
 
             // Assert
             assertAll(
