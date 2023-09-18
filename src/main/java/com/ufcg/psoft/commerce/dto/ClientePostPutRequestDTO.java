@@ -3,6 +3,7 @@ package com.ufcg.psoft.commerce.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class ClientePostPutRequestDTO {
     private String endereco;
 
     @JsonProperty("codigoAcesso")
+    @Pattern(regexp = "\\d{6}", message = "Codigo de acesso deve ter exatamente 6 digitos numericos")
     @NotBlank(message = "Codigo de acesso obrigatorio")
     private String codigoAcesso;
 
