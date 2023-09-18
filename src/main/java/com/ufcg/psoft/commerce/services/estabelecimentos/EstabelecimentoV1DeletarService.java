@@ -1,6 +1,5 @@
 package com.ufcg.psoft.commerce.services.estabelecimentos;
 
-import com.ufcg.psoft.commerce.exception.EstabelecimentoNaoExisteException;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarService {
 
     @Autowired
-    private EstabelecimentoRepository repository;
+    private EstabelecimentoRepository estabelecimentoRepository;
 
     @Autowired
     private EstabelecimentoValidar estabelecimentoValidar;
@@ -17,6 +16,6 @@ public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarSe
     @Override
     public void deletarEstabelecimento(Long id, String codigoAcesso) {
         this.estabelecimentoValidar.validar(id, codigoAcesso);
-        this.repository.deleteById(id);
+        this.estabelecimentoRepository.deleteById(id);
     }
 }

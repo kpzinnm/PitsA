@@ -32,7 +32,6 @@ public class Estabelecimento {
     @Column(name = "desc_codigoAcesso", length = 6, nullable = false)
     private String codigoAcesso;
 
-
     @ManyToMany
     @JoinTable(
         name = "estabelecimentos_sabores",

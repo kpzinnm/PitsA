@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("Testes do controlador de Sabores")
 public class SaborV1RestControllerTests {
-        final String URI_SABORES = "/sabores";
+        final String URI_SABORES = "/api/v1/sabores/";
 
         @Autowired
         MockMvc driver;
@@ -52,16 +52,16 @@ public class SaborV1RestControllerTests {
                 sabor = saborRepository.save(Sabor.builder()
                                 .nome("Calabresa")
                                 .tipo("salgado")
-                                .precoM(new BigDecimal("10.0"))
-                                .precoG(new BigDecimal("15.0"))
+                                .precoM(new BigDecimal(10.0))
+                                .precoG(new BigDecimal(15.0))
                                 .disponivel(true)
                                 .build());
                 saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
-                                .nome(sabor.getNome())
-                                .tipo(sabor.getTipo())
-                                .precoM(sabor.getPrecoM())
-                                .precoG(sabor.getPrecoG())
-                                .disponivel(sabor.isDisponivel())
+                                .nome("Calabresa")
+                                .tipo("salgado")
+                                .precoM(new BigDecimal(10.0))
+                                .precoG(new BigDecimal(15.0))
+                                .disponivel(true)
                                 .build();
                 estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
                                 .codigoAcesso("654321")

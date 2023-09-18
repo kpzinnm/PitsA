@@ -37,7 +37,6 @@ public class SaborPostPutRequestDTO {
     private BigDecimal precoG;
 
     @JsonProperty("disponivel")
-    @NotNull(message = "Obrigatorio informar a disponibilidade do sabor.")
     private Boolean disponivel;
 
 
