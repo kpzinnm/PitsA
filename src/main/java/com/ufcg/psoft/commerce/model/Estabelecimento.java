@@ -32,11 +32,6 @@ public class Estabelecimento {
     @Column(name = "desc_codigoAcesso", length = 6, nullable = false)
     private String codigoAcesso;
 
-    @ManyToMany
-    @JoinTable(
-        name = "estabelecimentos_sabores",
-        joinColumns = @JoinColumn(name = "fk_id_sabor"),
-        inverseJoinColumns = @JoinColumn(name = "fk_id_estabelecimento")
-    )
+    @ManyToMany(mappedBy = "estabelecimentos")
     private Set<Sabor> sabores;
 }

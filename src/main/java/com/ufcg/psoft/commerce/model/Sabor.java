@@ -11,8 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,7 +31,7 @@ public class Sabor {
     @Column(name = "pk_id_sabor")
     private Long id;
 
-    @Column(nullable = false, name = "desc_nome", unique = true)
+    @Column(nullable = false, name = "desc_nome")
     @JsonProperty("nome")
     private String nome;
 
@@ -52,7 +52,12 @@ public class Sabor {
     private Boolean disponivel;
 
     @JsonProperty("estabelecimentos")
-    @ManyToMany(mappedBy = "sabores")
+    @ManyToMany()
+    @JoinTable(
+        name = "estabelecimentos_sabores",
+        joinColumns = @JoinColumn(name = "fk_id_sabor"),
+        inverseJoinColumns = @JoinColumn(name = "fk_id_estabelecimento")
+    )
     private Set<Estabelecimento> estabelecimentos;
 
     public Boolean isDisponivel(){

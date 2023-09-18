@@ -1,10 +1,12 @@
 package com.ufcg.psoft.commerce.services.sabor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
@@ -24,17 +26,33 @@ public class SaborV1CadastraService implements SaborCadastraService {
     private EstabelecimentoRepository estabelecimentoRepository;
 
     @Override
-    public Sabor cadastrarSabor(Sabor sabor, Long id, String codigoAcesso) {
+    public Sabor cadastrarSabor(SaborPostPutRequestDTO saborPostPutRequestDTO, Long id, String codigoAcesso) {
         this.estabelecimentoValidar.validar(id, codigoAcesso);
 
         Estabelecimento estabelecimentoCurrent = estabelecimentoRepository.findById(id).get();
 
-        adicionarSaborPizza(estabelecimentoCurrent, sabor);
+        Sabor sabor = saborRepository.save(
+            Sabor.builder()
+            .disponivel(saborPostPutRequestDTO.getDisponivel())
+            .estabelecimentos(saborPostPutRequestDTO.getEstabelecimentos())
+            .nome(saborPostPutRequestDTO.getNome())
+            .tipo(saborPostPutRequestDTO.getTipo())
+            .precoG(saborPostPutRequestDTO.getPrecoG())
+            .precoM(saborPostPutRequestDTO.getPrecoM())
+            .build()
+        );
+
+        Set<Sabor> sabores = new HashSet<>();
+
+        sabores.add(sabor);
+
+
+        adicionarSaborPizza(estabelecimentoCurrent, sabores);
         
-        return saborRepository.save(sabor);
+        return sabor;
     }
     
-    private void adicionarSaborPizza(Estabelecimento estabelecimento, Sabor sabor){
-        estabelecimento.setSabores((Set<Sabor>) sabor);
+    private void adicionarSaborPizza(Estabelecimento estabelecimento, Set<Sabor> sabor){
+        estabelecimento.setSabores(sabor);
     }
 }

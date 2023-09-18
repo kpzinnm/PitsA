@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoResponseDTO;
-import com.ufcg.psoft.commerce.dto.sabor.SaborResponseDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Sabor;

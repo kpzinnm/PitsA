@@ -1,6 +1,10 @@
 package com.ufcg.psoft.commerce.dto.estabelecimentos;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ufcg.psoft.commerce.model.Sabor;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -19,4 +23,6 @@ public class EstabelecimentoPostPutRequestDTO {
     @NotNull(message = "Codigo de acesso deve ter exatamente 6 digitos numericos")
     private String codigoAcesso;
 
+    @JsonProperty("sabores")
+    private Set<Sabor> sabores;
 }

@@ -3,8 +3,8 @@ package com.ufcg.psoft.commerce.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ufcg.psoft.commerce.dto.sabor.SaborPostPutRequestDTO;
-import com.ufcg.psoft.commerce.dto.sabor.SaborResponseDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Sabor;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("Testes do controlador de Sabores")
 public class SaborV1RestControllerTests {
-        final String URI_SABORES = "/api/v1/sabores/";
+        final String URI_SABORES = "/api/v1/sabores";
 
         @Autowired
         MockMvc driver;
@@ -57,11 +57,11 @@ public class SaborV1RestControllerTests {
                                 .disponivel(true)
                                 .build());
                 saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
-                                .nome("Calabresa")
-                                .tipo("salgado")
-                                .precoM(new BigDecimal(10.0))
-                                .precoG(new BigDecimal(15.0))
-                                .disponivel(true)
+                                .nome(sabor.getNome())
+                                .tipo(sabor.getTipo())
+                                .precoM(sabor.getPrecoM())
+                                .precoG(sabor.getPrecoG())
+                                .disponivel(sabor.getDisponivel())
                                 .build();
                 estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
                                 .codigoAcesso("654321")
@@ -143,8 +143,8 @@ public class SaborV1RestControllerTests {
                                         () -> assertEquals(sabor.getId().longValue(), resultado.getId().longValue()),
                                         () -> assertEquals(sabor.getNome(), resultado.getNome()),
                                         () -> assertEquals(sabor.getTipo(), resultado.getTipo()),
-                                        () -> assertEquals(sabor.getPrecoM(), resultado.getPrecoM()),
-                                        () -> assertEquals(sabor.getPrecoG(), resultado.getPrecoG()),
+                                        () -> assertEquals(sabor.getPrecoM().doubleValue(), resultado.getPrecoM().doubleValue()),
+                                        () -> assertEquals(sabor.getPrecoG().doubleValue(), resultado.getPrecoG().doubleValue()),
                                         () -> assertEquals(sabor.getDisponivel(), resultado.isDisponivel()));
                 }
 
@@ -191,7 +191,7 @@ public class SaborV1RestControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals("Codigo de acesso invalido!", resultado.getMessage()));
+                                        () -> assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage()));
                 }
 
                 @Test
@@ -301,7 +301,7 @@ public class SaborV1RestControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals("Codigo de acesso invalido!", resultado.getMessage()));
+                                        () -> assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage()));
                 }
 
                 @Test
@@ -367,7 +367,7 @@ public class SaborV1RestControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals("Codigo de acesso invalido!", resultado.getMessage()));
+                                        () -> assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage()));
                 }
         }
 
@@ -422,7 +422,7 @@ public class SaborV1RestControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("Nome obrigatorio", resultado.getErrors().get(0)));
+                                        () -> assertEquals("Obrigatorio informar o nome do sabor.", resultado.getErrors().get(0)));
                 }
         }
 
@@ -477,7 +477,7 @@ public class SaborV1RestControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("Tipo obrigatorio", resultado.getErrors().get(0)));
+                                        () -> assertEquals("Obrigatorio informar o tipo do sabor.", resultado.getErrors().get(0)));
                 }
 
                 @Test
@@ -501,9 +501,7 @@ public class SaborV1RestControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("Tipo deve ser salgado ou doce",
-                                                        resultado.getErrors().get(0)));
+                                        () -> assertEquals("Tipo deve ser salgado ou doce", resultado.getMessage()));
                 }
         }
 
@@ -535,8 +533,8 @@ public class SaborV1RestControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals(40.0, resultado.getPrecoM()),
-                                        () -> assertEquals(60.0, resultado.getPrecoG()));
+                                        () -> assertEquals(40.0, resultado.getPrecoM().doubleValue()),
+                                        () -> assertEquals(60.0, resultado.getPrecoG().doubleValue()));
                 }
 
                 @Test
@@ -562,8 +560,8 @@ public class SaborV1RestControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertTrue(resultado.getErrors().contains("PrecoM obrigatorio")),
-                                        () -> assertTrue(resultado.getErrors().contains("PrecoG obrigatorio")));
+                                        () -> assertTrue(resultado.getErrors().contains("O valor nao pode ser nulo")),
+                                        () -> assertTrue(resultado.getErrors().contains("O valor nao pode ser nulo")));
                 }
 
                 @Test
@@ -590,9 +588,9 @@ public class SaborV1RestControllerTests {
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
                                         () -> assertTrue(resultado.getErrors()
-                                                        .contains("PrecoM deve ser maior que zero")),
+                                                        .contains("O valor deve ser maior que zero")),
                                         () -> assertTrue(resultado.getErrors()
-                                                        .contains("PrecoG deve ser maior que zero")));
+                                                        .contains("O valor deve ser maior que zero")));
                 }
 
                 @Test
@@ -618,7 +616,7 @@ public class SaborV1RestControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("PrecoG deve ser maior que zero",
+                                        () -> assertEquals("O valor deve ser maior que zero",
                                                         resultado.getErrors().get(0)));
                 }
         }
@@ -674,7 +672,7 @@ public class SaborV1RestControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("Disponibilidade obrigatoria",
+                                        () -> assertEquals("O valor nao pode ser nulo",
                                                         resultado.getErrors().get(0)));
                 }
 
@@ -793,7 +791,7 @@ public class SaborV1RestControllerTests {
                         CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
                         // Assert
-                        assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+                        assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage());
                 }
         }
 }

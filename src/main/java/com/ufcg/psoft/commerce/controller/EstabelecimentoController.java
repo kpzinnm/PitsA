@@ -55,6 +55,8 @@ public class EstabelecimentoController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
     }
+
+    
 }
 
 
