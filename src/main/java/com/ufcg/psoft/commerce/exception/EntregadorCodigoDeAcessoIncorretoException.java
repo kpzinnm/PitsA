@@ -3,4 +3,8 @@ public class EntregadorCodigoDeAcessoIncorretoException extends CommerceExceptio
     public EntregadorCodigoDeAcessoIncorretoException(){
         super("Codigo de acesso não correspode com o deste entregador!");
     }
+
+    public EntregadorCodigoDeAcessoIncorretoException(String message){
+        super(message);
+    }
 }
