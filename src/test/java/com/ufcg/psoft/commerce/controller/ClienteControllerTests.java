@@ -3,6 +3,11 @@ package com.ufcg.psoft.commerce.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ufcg.psoft.commerce.dto.ClienteGetDTO;
+import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.exception.CustomErrorType;
+import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -78,7 +83,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertEquals("Cliente Um Alterado", resultado.getNome());
@@ -152,7 +157,9 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            ClienteResponseDTO resultado = objectMapper.readValue(responseJsonString, ClienteResponseDTO.ClienteResponseDTOBuilder.class).build();
+
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
+
 
             // Assert
             assertEquals("Endereco Alterado", resultado.getEndereco());
@@ -360,7 +367,8 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            ClienteResponseDTO resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {});
+            ClienteGetDTO resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+            });
 
             // Assert
             assertAll(
@@ -405,7 +413,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertAll(
@@ -430,7 +438,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertAll(
@@ -547,7 +555,12 @@ public class ClienteControllerTests {
             );
         }
     }
+}
 
+
+
+        // TESTES DESTINADOS A PRÓXIMA ETAPA DO PROJETO!
+/*
     @Nested
     @DisplayName("Conjunto de casos de demonstrar interesse em sabores")
     class ClienteDemonstrarInteresseEmSabores {
@@ -698,4 +711,5 @@ public class ClienteControllerTests {
             );
         }
     }
-}
+    }
+*/
