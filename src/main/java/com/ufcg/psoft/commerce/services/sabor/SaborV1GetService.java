@@ -1,13 +1,11 @@
 package com.ufcg.psoft.commerce.services.sabor;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufcg.psoft.commerce.exception.SaborNotExistException;
-import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import com.ufcg.psoft.commerce.repository.SaborRepository;

@@ -11,7 +11,6 @@ import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
 import com.ufcg.psoft.commerce.services.estabelecimentos.EstabelecimentoValidar;
 
-import jakarta.validation.Valid;
 
 @Service
 public class SaborV1UpdateService implements SaborUpdateService {
