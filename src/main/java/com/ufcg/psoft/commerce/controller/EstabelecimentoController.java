@@ -3,7 +3,10 @@ package com.ufcg.psoft.commerce.controller;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPutRequestDTO;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
-import com.ufcg.psoft.commerce.services.estabelecimento.*;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoAtualizarService;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoCadastrarService;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoDeletarService;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,42 +50,11 @@ public class EstabelecimentoController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
-
-    @PutMapping("{id}")
-    public ResponseEntity<?> atualizarEstabelecimento (@PathVariable Long
-    id, @RequestBody @Valid EstabelecimentoPutRequestDTO
-    estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
-    }
-
-    
+        @PutMapping("{id}")
+        public ResponseEntity<?> atualizarEstabelecimento (@PathVariable Long
+        id, @RequestBody @Valid EstabelecimentoPutRequestDTO
+        estabelecimentoPutRequestDTO, @Valid @RequestParam("codigoAcesso") String codigoAcesso){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(this.estabelecimentoAtualizarService.atualizarEstabelecimento(id, estabelecimentoPutRequestDTO, codigoAcesso));
+        }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
