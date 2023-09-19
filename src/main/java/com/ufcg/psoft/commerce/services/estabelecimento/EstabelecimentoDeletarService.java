@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.services.estabelecimentos;
+package com.ufcg.psoft.commerce.services.estabelecimento;
 
 @FunctionalInterface
 public interface EstabelecimentoDeletarService {

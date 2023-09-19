@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.services.estabelecimentos;
+package com.ufcg.psoft.commerce.services.estabelecimento;
 
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
@@ -10,7 +10,6 @@ public class EstabelecimentoV1CadastrarService implements EstabelecimentoCadastr
 
     @Autowired
     private EstabelecimentoRepository repository;
-
 
     @Override
     public Estabelecimento cadastrarEstabelecimento(Estabelecimento estabelecimento) {

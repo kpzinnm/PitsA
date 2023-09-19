@@ -1,4 +1,4 @@
-package com.ufcg.psoft.commerce.services.estabelecimentos;
+package com.ufcg.psoft.commerce.services.estabelecimento;
 
 import com.ufcg.psoft.commerce.exception.EstabelecimentoCodigoAcessoDiferenteException;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoNaoExisteException;
