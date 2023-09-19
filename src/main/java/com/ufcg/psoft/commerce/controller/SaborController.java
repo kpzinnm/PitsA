@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/v1/sabores", produces = MediaType.APPLICATION_JSON_VALUE)
-public class SaborV1RestController {
+public class SaborController {
 
         @Autowired
         private ModelMapper modelMapper;
