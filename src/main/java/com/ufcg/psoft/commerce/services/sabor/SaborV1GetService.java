@@ -9,7 +9,7 @@ import com.ufcg.psoft.commerce.exception.SaborNotExistException;
 import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
-import com.ufcg.psoft.commerce.services.estabelecimentos.EstabelecimentoValidar;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
 @Service
 public class SaborV1GetService implements SaborGetService {

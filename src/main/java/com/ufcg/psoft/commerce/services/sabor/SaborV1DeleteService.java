@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.ufcg.psoft.commerce.exception.SaborNotExistException;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
-import com.ufcg.psoft.commerce.services.estabelecimentos.EstabelecimentoValidar;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
 @Service
 public class SaborV1DeleteService implements SaborDeleteService{
