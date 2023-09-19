@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarService {
 
     @Autowired
-    private EstabelecimentoRepository estabelecimentoRepository;
+    private EstabelecimentoRepository repository;
 
     @Autowired
     private EstabelecimentoValidar estabelecimentoValidar;
@@ -16,6 +16,6 @@ public class EstabelecimentoV1DeletarService implements EstabelecimentoDeletarSe
     @Override
     public void deletarEstabelecimento(Long id, String codigoAcesso) {
         this.estabelecimentoValidar.validar(id, codigoAcesso);
-        this.estabelecimentoRepository.deleteById(id);
+        this.repository.deleteById(id);
     }
 }
