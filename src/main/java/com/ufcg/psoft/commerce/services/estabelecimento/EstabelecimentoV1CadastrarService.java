@@ -15,4 +15,4 @@ public class EstabelecimentoV1CadastrarService implements EstabelecimentoCadastr
     public Estabelecimento cadastrarEstabelecimento(Estabelecimento estabelecimento) {
         return repository.save(estabelecimento);
     }
-}
+  }
