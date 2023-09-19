@@ -1,10 +1,14 @@
-/*package com.ufcg.psoft.commerce.controller;
+package com.ufcg.psoft.commerce.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ufcg.psoft.commerce.exception.CustomErrorType;
+import com.ufcg.psoft.commerce.model.Associacao;
+import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
+import com.ufcg.psoft.commerce.repository.AssociacaoRepository;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
-import com.ufcg.psoft.commerce.service.entregador.EntregadorService;
+import com.ufcg.psoft.commerce.repository.EntregadorRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,8 +38,8 @@ class AssociacaoControllerTests {
     @Autowired
     EntregadorRepository entregadorRepository;
 
-    @Autowired
-    EntregadorService entregadorService;
+//    @Autowired
+//    EntregadorService entregadorService;
 
     @Autowired
     EstabelecimentoRepository estabelecimentoRepository;
@@ -285,4 +289,3 @@ class AssociacaoControllerTests {
         }
     }
 }
-*/

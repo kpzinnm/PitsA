@@ -8,5 +8,4 @@ public class CommerceException extends RuntimeException {
     public CommerceException(String message) {
         super(message);
     }
-
 }
