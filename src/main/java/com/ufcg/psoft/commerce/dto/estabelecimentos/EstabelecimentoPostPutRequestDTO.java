@@ -25,4 +25,5 @@ public class EstabelecimentoPostPutRequestDTO {
 
     @JsonProperty("sabores")
     private Set<Sabor> sabores;
+    
 }

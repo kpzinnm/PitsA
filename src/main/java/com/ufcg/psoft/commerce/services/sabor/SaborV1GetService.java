@@ -2,12 +2,13 @@ package com.ufcg.psoft.commerce.services.sabor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoCardapioDTO;
 import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoNaoExisteException;
 import com.ufcg.psoft.commerce.exception.SaborNotExistException;
@@ -51,18 +52,14 @@ public class SaborV1GetService implements SaborGetService {
     }
 
     @Override
-    public List<Sabor> getAllCardapio(Long id) {
-        List<Sabor> sabores = new ArrayList<Sabor>();
-
+    public List<SaborResponseDTO> getAllCardapio(Long id) {
         if (estabelecimentoRepository.existsById(id)) {
 
             Estabelecimento estabelecimento = estabelecimentoRepository.findById(id).get();
+            Set<Sabor> cardapio = estabelecimento.getSabores();
 
-            sabores.addAll(estabelecimento.getSabores());
-
-            sabores = (List<Sabor>) modelMapper.map(sabores, EstabelecimentoCardapioDTO.class);
-
-            return sabores;
+            return cardapio.stream().map(sabor -> modelMapper.map(sabor, SaborResponseDTO.class))
+                    .collect(Collectors.toList());
         } else {
             throw new EstabelecimentoNaoExisteException();
         }
@@ -71,25 +68,24 @@ public class SaborV1GetService implements SaborGetService {
 
     @Override
     public List<Sabor> getTipo(Long id, String tipo) {
-        // if (estabelecimentoRepository.existsById(id)) {
-        //     List<Sabor> sabores = new ArrayList<Sabor>();
-        //     List<Sabor> saboresFinais = new ArrayList<Sabor>();
+        if (estabelecimentoRepository.existsById(id)) {
+            List<Sabor> sabores = new ArrayList<>();
+            
+            Estabelecimento estabelecimento = estabelecimentoRepository.findById(id).get();
+            
+            Set<Sabor> cardapio = estabelecimento.getSabores();
 
-        //     Estabelecimento estabelecimento = estabelecimentoRepository.findById(id).get();
+            for(Sabor sabor : cardapio){
+                if(sabor.getTipo().toUpperCase().equals(tipo.toUpperCase())){
+                    sabores.add(sabor);
+                }
+            }
 
-        //     sabores.addAll(estabelecimento.getSabores());
+            return sabores;
+        } else {
+            throw new EstabelecimentoNaoExisteException();
 
-        //     for (Sabor sabor : sabores) {
-        //         if (sabor.getTipo().equals(tipo)) {
-        //             saboresFinais.add(sabor);
-        //         }
-        //     }
-
-        //     return saboresFinais;
-        // }
-        // return null;
-
-        return saborRepository.findByTipo(tipo);
+        }
     }
 
 }

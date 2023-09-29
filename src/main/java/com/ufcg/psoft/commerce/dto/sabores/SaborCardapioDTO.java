@@ -1,10 +1,8 @@
 package com.ufcg.psoft.commerce.dto.sabores;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ufcg.psoft.commerce.model.Estabelecimento;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

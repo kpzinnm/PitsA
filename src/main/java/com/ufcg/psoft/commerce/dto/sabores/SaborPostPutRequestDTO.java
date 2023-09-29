@@ -1,10 +1,8 @@
 package com.ufcg.psoft.commerce.dto.sabores;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ufcg.psoft.commerce.model.Estabelecimento;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,9 +39,6 @@ public class SaborPostPutRequestDTO {
     @JsonProperty("disponivel")
     @NotNull(message = "O valor nao pode ser nulo")
     private Boolean disponivel;
-
-    @JsonProperty("estabelecimentos")
-    private Set<Estabelecimento> estabelecimentos;
 
     public Boolean isDisponivel(){
         return getDisponivel();

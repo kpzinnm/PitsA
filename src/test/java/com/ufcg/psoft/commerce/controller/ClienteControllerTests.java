@@ -3,8 +3,8 @@ package com.ufcg.psoft.commerce.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ufcg.psoft.commerce.dto.ClienteGetDTO;
-import com.ufcg.psoft.commerce.dto.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
+import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Testes do controlador de Clientes")
 public class ClienteControllerTests {
 
-    final String URI_CLIENTES = "/clientes";
+    final String URI_CLIENTES = "/api/v1/clientes";
 
     @Autowired
     MockMvc driver;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(
-        value = "/associacao",
+        value = "/api/v1/associacao",
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class AssociacaoController {

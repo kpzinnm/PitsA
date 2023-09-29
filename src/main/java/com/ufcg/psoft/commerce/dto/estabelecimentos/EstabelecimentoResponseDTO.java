@@ -1,5 +1,4 @@
 package com.ufcg.psoft.commerce.dto.estabelecimentos;
-
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
