@@ -32,14 +32,13 @@ public class SaborV1UpdateService implements SaborUpdateService {
         if (saborRepository.existsById(saborId)) {
             Sabor saborUpdate = saborRepository.findById(saborId).get();
 
-            saborVerificaTipoService.verificaTipo(saborPostPutRequestDTO.getTipo());
+            saborVerificaTipoService.verificaTipo(saborPostPutRequestDTO.getTipo().toUpperCase());
 
             saborUpdate.setNome(saborPostPutRequestDTO.getNome());
             saborUpdate.setTipo(saborPostPutRequestDTO.getTipo());
             saborUpdate.setPrecoG(saborPostPutRequestDTO.getPrecoG());
             saborUpdate.setPrecoM(saborPostPutRequestDTO.getPrecoM());
             saborUpdate.setDisponivel(saborPostPutRequestDTO.getDisponivel());
-            saborUpdate.setEstabelecimentos(saborPostPutRequestDTO.getEstabelecimentos());
 
             saborRepository.flush();
 

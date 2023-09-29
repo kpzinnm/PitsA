@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(
-        value = "/entregadores",
+        value = "/api/v1/entregadores",
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class EntregadorController {

@@ -5,9 +5,7 @@ import com.ufcg.psoft.commerce.services.sabor.SaborDeleteService;
 import com.ufcg.psoft.commerce.services.sabor.SaborGetService;
 import com.ufcg.psoft.commerce.services.sabor.SaborUpdateService;
 import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
-import com.ufcg.psoft.commerce.model.Sabor;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/api/v1/sabores", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SaborController {
-
-        @Autowired
-        private ModelMapper modelMapper;
 
         @Autowired
         private SaborCadastraService saborCadastraService;
@@ -83,7 +78,7 @@ public class SaborController {
                                                 Long.parseLong(estabelecimentoId), estabelecimentoCodigoAcesso));
         }
 
-        @PutMapping("/{id}/{value}")
+        @PutMapping("/")
         public ResponseEntity<?> updateSaborPorIdDisponibilidade(
                         @Valid @RequestBody SaborPostPutRequestDTO saborPostPutRequestDTO,
                         @RequestParam("saborId") String saborId,

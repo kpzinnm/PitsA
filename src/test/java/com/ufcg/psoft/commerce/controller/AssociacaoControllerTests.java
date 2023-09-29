@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Testes do controlador de Associação")
 class AssociacaoControllerTests {
 
-    final String URI_ASSOCIACAO = "/associacao";
+    final String URI_ASSOCIACAO = "/api/v1/associacao";
 
     @Autowired
     MockMvc driver;

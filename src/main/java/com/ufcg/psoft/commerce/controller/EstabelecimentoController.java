@@ -2,23 +2,21 @@ package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPutRequestDTO;
-import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoAtualizarService;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoBuscarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoCadastrarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoDeletarService;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 import com.ufcg.psoft.commerce.services.sabor.SaborGetService;
 
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/estabelecimentos")
+@RestController
+@RequestMapping(value = "/api/v1/estabelecimentos", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EstabelecimentoController {
 
     @Autowired
@@ -31,24 +29,16 @@ public class EstabelecimentoController {
     private EstabelecimentoAtualizarService estabelecimentoAtualizarService;
 
     @Autowired
-    private SaborGetService saborGetService;
+    private EstabelecimentoBuscarService estabelecimentoBuscarService;
 
     @Autowired
-    private EstabelecimentoValidar estabelecimentoValidar;
+    private SaborGetService saborGetService;
 
-    private ModelMapper modelMapper;
-
-    public EstabelecimentoController() {
-        this.modelMapper = new ModelMapper();
-    }
-
-    @PostMapping()
+    @PostMapping("")
     public ResponseEntity<?> criarEstabelecimento(
             @Valid @RequestBody EstabelecimentoPostPutRequestDTO estabelecimentoPostPutRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(estabelecimentoCadastrarService
-                        .cadastrarEstabelecimento(
-                                modelMapper.map(estabelecimentoPostPutRequestDTO, Estabelecimento.class)));
+                .body(estabelecimentoCadastrarService.cadastrarEstabelecimento(estabelecimentoPostPutRequestDTO));
     }
 
     @DeleteMapping("{id}")
@@ -68,14 +58,20 @@ public class EstabelecimentoController {
                         codigoAcesso));
     }
 
+    @GetMapping("/")
+    public ResponseEntity<?> listarTodosEstaelecimentos() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(estabelecimentoBuscarService.listarTodos());
+    }
+
     @GetMapping("/{id}/sabores")
-    public ResponseEntity<?> buscarTodosOsSabores(@Valid @PathVariable Long id) {
+    public ResponseEntity<?> buscarCardapio(@Valid @PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(saborGetService.getAllCardapio(id));
     }
 
-    @GetMapping("/{id}/sabores/tipo")
-    public ResponseEntity<?> buscarTodosOsSaboresTipo(@Valid @PathVariable Long id,
+    @GetMapping("/{id}/cardapio/tipo")
+    public ResponseEntity<?> buscarCardapioPorTipo(@Valid @PathVariable Long id,
     @RequestParam("tipo") String tipo
     ) {
         return ResponseEntity.status(HttpStatus.OK)

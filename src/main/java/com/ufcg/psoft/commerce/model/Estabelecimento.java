@@ -4,7 +4,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,9 +28,10 @@ public class Estabelecimento {
     private Long id;
 
     @JsonProperty("codigoAcesso")
-    @Column(name = "desc_codigoAcesso", length = 6, nullable = false)
+    @Column(name = "desc_codigoAcesso", length = 6, nullable = false, unique = true)
     private String codigoAcesso;
 
-    @ManyToMany(mappedBy = "estabelecimentos")
+    @JsonProperty("sabores")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Sabor> sabores;
 }

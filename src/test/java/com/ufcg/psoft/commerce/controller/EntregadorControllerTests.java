@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Testes do controlador de Entregadores")
 public class EntregadorControllerTests {
 
-    final String URI_ENTREGADORES = "/entregadores";
+    final String URI_ENTREGADORES = "/api/v1/entregadores";
 
     @Autowired
     MockMvc driver;

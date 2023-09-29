@@ -4,7 +4,6 @@ import com.ufcg.psoft.commerce.exception.EntregadorCodigoDeAcessoIncorretoExcept
 import com.ufcg.psoft.commerce.exception.EntregadorNaoCadastradoException;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoNaoExisteException;
 import com.ufcg.psoft.commerce.model.Associacao;
-import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.repository.AssociacaoRepository;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;

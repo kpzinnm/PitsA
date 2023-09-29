@@ -32,7 +32,7 @@ import java.util.Set;
 @AutoConfigureMockMvc
 @DisplayName("Testes do controlador de estabelecimentos")
 public class EstabelecimentoControllerTests {
-        final String URI_ESTABELECIMENTOS = "/estabelecimentos";
+        final String URI_ESTABELECIMENTOS = "/api/v1/estabelecimentos";
         EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO;
         EstabelecimentoPostPutRequestDTO estabelecimentoPostPutRequestDTO;
 
@@ -71,7 +71,6 @@ public class EstabelecimentoControllerTests {
         @Nested
         @DisplayName("Conjunto de casos de verificação dos fluxos básicos API Rest")
         class EstabelecimentoVerificacaoFluxosBasicosApiRest {
-                final String URI_ESTABELECIMENTOS = "/estabelecimentos";
                 EstabelecimentoPutRequestDTO estabelecimentoPutRequestDTO;
                 EstabelecimentoPostPutRequestDTO estabelecimentoPostPutRequestDTO;
 
@@ -283,6 +282,7 @@ public class EstabelecimentoControllerTests {
                                         .precoM(new BigDecimal("25.0"))
                                         .precoG(new BigDecimal("30.0"))
                                         .tipo("salgado")
+                                        .disponivel(true)
                                         .build();
 
                         Sabor sabor2 = Sabor.builder()
@@ -290,12 +290,14 @@ public class EstabelecimentoControllerTests {
                                         .precoM(new BigDecimal("20.0"))
                                         .precoG(new BigDecimal("29.0"))
                                         .tipo("salgado")
+                                        .disponivel(true)
                                         .build();
                         Sabor sabor3 = Sabor.builder()
                                         .nome("Chocolate")
                                         .precoM(new BigDecimal("15.0"))
                                         .precoG(new BigDecimal("30.0"))
                                         .tipo("doce")
+                                        .disponivel(true)
                                         .build();
 
                         Sabor sabor4 = Sabor.builder()
@@ -303,19 +305,102 @@ public class EstabelecimentoControllerTests {
                                         .precoM(new BigDecimal("20.0"))
                                         .precoG(new BigDecimal("40.0"))
                                         .tipo("doce")
+                                        .disponivel(true)
                                         .build();
+
                         Estabelecimento estabelecimento1 = Estabelecimento.builder()
-                                        .codigoAcesso("123456")
+                                        .codigoAcesso("122456")
                                         .sabores(Set.of(sabor1, sabor2, sabor3, sabor4))
                                         .build();
-                        estabelecimentoRepository.save(estabelecimento1);
+                        
+                                        estabelecimentoRepository.save(estabelecimento1);
 
                         // Act
                         String responseJsonString = driver
                                         .perform(get(URI_ESTABELECIMENTOS + "/" + estabelecimento1.getId() + "/sabores")
                                                         .contentType(MediaType.APPLICATION_JSON)
-                                                        .content(objectMapper.writeValueAsString(
-                                                                        estabelecimentoPostPutRequestDTO)))
+                                                        .content(objectMapper.writeValueAsString(estabelecimentoPostPutRequestDTO)))
+                                        .andExpect(status().isOk()) // Codigo 200
+                                        .andDo(print())
+                                        .andReturn().getResponse().getContentAsString();
+
+                        List<SaborResponseDTO> resultado = objectMapper.readValue(responseJsonString,
+                                        new TypeReference<List<SaborResponseDTO>>() {
+                                        });
+                        // Assert
+                        assertAll(
+                                        () -> assertEquals(4, resultado.size()));
+                }
+
+                @Test
+                @DisplayName("Quando buscamos o cardapio de um estabelecimento que não existe")
+                void quandoBuscarCardapioEstabelecimentoInexistente() throws Exception {
+                        // Arrange
+                        // Nenhuma necessidade além do setup()
+
+                        // Act
+                        String responseJsonString = driver.perform(get(URI_ESTABELECIMENTOS + "/" + 9999 + "/sabores")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(objectMapper.writeValueAsString(estabelecimentoPostPutRequestDTO)))
+                                        .andExpect(status().isBadRequest()) // Codigo 404
+                                        .andDo(print())
+                                        .andReturn().getResponse().getContentAsString();
+
+                        CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+                        // Assert
+                        assertAll(
+                                        () -> assertEquals("Estabelecimento não existe", resultado.getMessage()));
+                }
+
+                @Test
+                @DisplayName("Quando buscamos o cardapio de um estabelecimento por tipo (salgado)")
+                void quandoBuscarCardapioEstabelecimentoPorTipo() throws Exception {
+                        // Arrange
+                        Sabor sabor1 = Sabor.builder()
+                                        .nome("Calabresa")
+                                        .precoM(new BigDecimal("25.0"))
+                                        .precoG(new BigDecimal("30.0"))
+                                        .tipo("salgado")
+                                        .disponivel(true)
+                                        .build();
+
+                        Sabor sabor2 = Sabor.builder()
+                                        .nome("Mussarela")
+                                        .precoM(new BigDecimal("20.0"))
+                                        .precoG(new BigDecimal("29.0"))
+                                        .tipo("salgado")
+                                        .disponivel(true)
+                                        .build();
+                        Sabor sabor3 = Sabor.builder()
+                                        .nome("Chocolate")
+                                        .precoM(new BigDecimal("15.0"))
+                                        .precoG(new BigDecimal("30.0"))
+                                        .tipo("doce")
+                                        .disponivel(true)
+                                        .build();
+
+                        Sabor sabor4 = Sabor.builder()
+                                        .nome("Morango")
+                                        .precoM(new BigDecimal("20.0"))
+                                        .precoG(new BigDecimal("40.0"))
+                                        .tipo("doce")
+                                        .disponivel(true)
+                                        .build();
+                        Estabelecimento estabelecimento1 = Estabelecimento.builder()
+                                        .codigoAcesso("555555")
+                                        .sabores(Set.of(sabor1, sabor2, sabor3, sabor4))
+                                        .build();
+                        estabelecimentoRepository.save(estabelecimento1);
+
+                        // Act
+                        String responseJsonString = driver.perform(
+                                        get(URI_ESTABELECIMENTOS + "/" + estabelecimento1.getId() + "/cardapio" + "/tipo")
+                                                        .contentType(MediaType.APPLICATION_JSON)
+                                                        .param("tipo", "salgado")
+                                                        .content(objectMapper
+                                                                        .writeValueAsString(
+                                                                                        estabelecimentoPostPutRequestDTO)))
                                         .andExpect(status().isOk()) // Codigo 200
                                         .andDo(print())
                                         .andReturn().getResponse().getContentAsString();
@@ -326,40 +411,19 @@ public class EstabelecimentoControllerTests {
 
                         // Assert
                         assertAll(
-                                        () -> assertEquals(4, resultado.size()));
+                                        () -> assertEquals(2, resultado.size()));
                 }
-        }
 
-        @Test
-        @DisplayName("Quando buscamos o cardapio de um estabelecimento que não existe")
-        void quandoBuscarCardapioEstabelecimentoInexistente() throws Exception {
-                // Arrange
-                // Nenhuma necessidade além do setup()
-
-                // Act
-                String responseJsonString = driver.perform(get(URI_ESTABELECIMENTOS + "/" + 9999 + "/sabores")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(estabelecimentoPostPutRequestDTO)))
-                                .andExpect(status().isBadRequest()) // Codigo 404
-                                .andDo(print())
-                                .andReturn().getResponse().getContentAsString();
-
-                CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-                // Assert
-                assertAll(
-                                () -> assertEquals("Estabelecimento não existe", resultado.getMessage()));
-        }
-
-        @Test
-        @DisplayName("Quando buscamos o cardapio de um estabelecimento por tipo (salgado)")
-        void quandoBuscarCardapioEstabelecimentoPorTipo() throws Exception {
-                // Arrange
-                Sabor sabor1 = Sabor.builder()
+                @Test
+                @DisplayName("Quando buscamos o cardapio de um estabelecimento por tipo (doce)")
+                void quandoBuscarCardapioEstabelecimentoPorTipoDoce() throws Exception {
+                        // Arrange
+                        Sabor sabor1 = Sabor.builder()
                                         .nome("Calabresa")
                                         .precoM(new BigDecimal("25.0"))
                                         .precoG(new BigDecimal("30.0"))
                                         .tipo("salgado")
+                                        .disponivel(true)
                                         .build();
 
                         Sabor sabor2 = Sabor.builder()
@@ -367,12 +431,14 @@ public class EstabelecimentoControllerTests {
                                         .precoM(new BigDecimal("20.0"))
                                         .precoG(new BigDecimal("29.0"))
                                         .tipo("salgado")
+                                        .disponivel(true)
                                         .build();
                         Sabor sabor3 = Sabor.builder()
                                         .nome("Chocolate")
                                         .precoM(new BigDecimal("15.0"))
                                         .precoG(new BigDecimal("30.0"))
                                         .tipo("doce")
+                                        .disponivel(true)
                                         .build();
 
                         Sabor sabor4 = Sabor.builder()
@@ -380,84 +446,34 @@ public class EstabelecimentoControllerTests {
                                         .precoM(new BigDecimal("20.0"))
                                         .precoG(new BigDecimal("40.0"))
                                         .tipo("doce")
+                                        .disponivel(true)
                                         .build();
-                Estabelecimento estabelecimento1 = Estabelecimento.builder()
-                                .codigoAcesso("123456")
-                                .sabores(Set.of(sabor1, sabor2, sabor3, sabor4))
-                                .build();
-                estabelecimentoRepository.save(estabelecimento1);
-
-                // Act
-                String responseJsonString = driver.perform(
-                                get(URI_ESTABELECIMENTOS + "/" + estabelecimento1.getId() + "/sabores" + "/tipo")
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .param("tipo", "salgado")
-                                                .content(objectMapper
-                                                                .writeValueAsString(estabelecimentoPostPutRequestDTO)))
-                                .andExpect(status().isOk()) // Codigo 200
-                                .andDo(print())
-                                .andReturn().getResponse().getContentAsString();
-
-                List<SaborResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-                });
-
-                // Assert
-                assertAll(
-                                () -> assertEquals(2, resultado.size()));
-        }
-
-        @Test
-        @DisplayName("Quando buscamos o cardapio de um estabelecimento por tipo (doce)")
-        void quandoBuscarCardapioEstabelecimentoPorTipoDoce() throws Exception {
-                // Arrange
-                Sabor sabor1 = Sabor.builder()
-                                        .nome("Calabresa")
-                                        .precoM(new BigDecimal("25.0"))
-                                        .precoG(new BigDecimal("30.0"))
-                                        .tipo("salgado")
+                        Estabelecimento estabelecimento1 = Estabelecimento.builder()
+                                        .codigoAcesso("444444")
+                                        .sabores(Set.of(sabor1, sabor2, sabor3, sabor4))
                                         .build();
+                        estabelecimentoRepository.save(estabelecimento1);
 
-                        Sabor sabor2 = Sabor.builder()
-                                        .nome("Mussarela")
-                                        .precoM(new BigDecimal("20.0"))
-                                        .precoG(new BigDecimal("29.0"))
-                                        .tipo("salgado")
-                                        .build();
-                        Sabor sabor3 = Sabor.builder()
-                                        .nome("Chocolate")
-                                        .precoM(new BigDecimal("15.0"))
-                                        .precoG(new BigDecimal("30.0"))
-                                        .tipo("doce")
-                                        .build();
+                        // Act
+                        String responseJsonString = driver.perform(
+                                        get(URI_ESTABELECIMENTOS + "/" + estabelecimento1.getId() + "/cardapio"
+                                                        + "/tipo")
+                                                        .contentType(MediaType.APPLICATION_JSON)
+                                                        .param("tipo", "doce")
+                                                        .content(objectMapper
+                                                                        .writeValueAsString(
+                                                                                        estabelecimentoPostPutRequestDTO)))
+                                        .andExpect(status().isOk()) // Codigo 200
+                                        .andDo(print())
+                                        .andReturn().getResponse().getContentAsString();
 
-                        Sabor sabor4 = Sabor.builder()
-                                        .nome("Morango")
-                                        .precoM(new BigDecimal("20.0"))
-                                        .precoG(new BigDecimal("40.0"))
-                                        .tipo("doce")
-                                        .build();
-                Estabelecimento estabelecimento1 = Estabelecimento.builder()
-                                .codigoAcesso("123456")
-                                .sabores(Set.of(sabor1, sabor2, sabor3, sabor4))
-                                .build();
-                estabelecimentoRepository.save(estabelecimento1);
+                        List<SaborResponseDTO> resultado = objectMapper.readValue(responseJsonString,
+                                        new TypeReference<>() {
+                                        });
 
-                // Act
-                String responseJsonString = driver.perform(
-                                get(URI_ESTABELECIMENTOS + "/" + estabelecimento1.getId() + "/sabores" + "/tipo")
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .param("tipo", "doce")
-                                                .content(objectMapper
-                                                                .writeValueAsString(estabelecimentoPostPutRequestDTO)))
-                                .andExpect(status().isOk()) // Codigo 200
-                                .andDo(print())
-                                .andReturn().getResponse().getContentAsString();
-
-                List<SaborResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-                });
-
-                // Assert
-                assertAll(
-                                () -> assertEquals(2, resultado.size()));
+                        // Assert
+                        assertAll(
+                                        () -> assertEquals(2, resultado.size()));
+                }
         }
 }

@@ -13,10 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaborResponseDTO {
-
-    @JsonProperty("id")
-    private Long id;
+public class SaborCardapioDTO {
 
     @JsonProperty("nome")
     private String nome;
@@ -30,11 +27,4 @@ public class SaborResponseDTO {
     @JsonProperty("precoG")
     private BigDecimal precoG;
 
-    @JsonProperty("disponivel")
-    private Boolean disponivel;
-
-
-    public Boolean isDisponivel(){
-        return getDisponivel();
-    }
 }

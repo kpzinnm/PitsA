@@ -632,11 +632,12 @@ public class SaborControllerTests {
                         saborPostPutRequestDTO.setDisponivel(false);
 
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
                                         .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
+                                        .param("disponibilidade", String.valueOf(false))
                                         .content(objectMapper.writeValueAsString(saborPostPutRequestDTO)))
                                         .andExpect(status().isOk()) // Codigo 200
                                         .andDo(print())
@@ -657,11 +658,12 @@ public class SaborControllerTests {
                         saborPostPutRequestDTO.setDisponivel(null);
 
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
                                         .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
+                                        .param("disponibilidade", String.valueOf(false))
                                         .content(objectMapper.writeValueAsString(saborPostPutRequestDTO)))
                                         .andExpect(status().isBadRequest()) // Codigo 200
                                         .andDo(print())
@@ -681,7 +683,7 @@ public class SaborControllerTests {
                 void quandoAlteramosDisponibilidadeSaborFalse() throws Exception {
                         // Arrange
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/" + sabor.getId() + "/" + false)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
@@ -707,7 +709,7 @@ public class SaborControllerTests {
                         sabor.setDisponivel(false);
                         saborRepository.save(sabor);
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/" + sabor.getId() + "/" + true)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
@@ -733,7 +735,7 @@ public class SaborControllerTests {
                         sabor.setDisponivel(false);
                         saborRepository.save(sabor);
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/" + sabor.getId() + "/" + false)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
@@ -755,7 +757,7 @@ public class SaborControllerTests {
                 void quandoAlteramosDisponibilidadeSaborTrueQuandoJaEstaTrue() throws Exception {
                         // Arrange
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/" + sabor.getId() + "/" + true)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
@@ -777,7 +779,7 @@ public class SaborControllerTests {
                 void quandoAlteramosDisponibilidadeSaborCodigoErrado() throws Exception {
                         // Arrange
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/" + sabor.getId() + "/" + false)
+                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())

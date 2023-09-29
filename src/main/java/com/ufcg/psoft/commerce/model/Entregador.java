@@ -1,6 +1,5 @@
 package com.ufcg.psoft.commerce.model;
 
-import ch.qos.logback.core.joran.spi.NoAutoStart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
