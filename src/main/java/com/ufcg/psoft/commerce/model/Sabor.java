@@ -47,7 +47,5 @@ public class Sabor {
     @JsonProperty("disponivel")
     private Boolean disponivel;
 
-    public Boolean isDisponivel(){
-        return getDisponivel();
-    }
+    public Boolean isDisponivel(){ return getDisponivel();}
 }
