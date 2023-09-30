@@ -22,12 +22,12 @@ public class Pizza {
     @Column(name = "pk_id_pizza")
     private Long id;
 
-    @Column(nullable = false, name = "desc_sabor1")
     @JsonProperty("sabor1")
+    @ManyToOne
     private Sabor sabor1;
 
-    @Column(nullable = false, name = "desc_sabor2")
     @JsonProperty("sabor2")
+    @ManyToOne
     private Sabor sabor2;
 
     @Column(nullable = false, name = "desc_tamanho")

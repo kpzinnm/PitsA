@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +22,7 @@ public class PedidoPostPutRequestDTO {
     @JsonProperty("enderecoEntrega")
     private String enderecoEntrega;
 
+    @NotEmpty(message = "Necessario ao menos uma pizza")
     @JsonProperty("pizzas")
     private List<PizzaPostPutDTO> pizzas;
 

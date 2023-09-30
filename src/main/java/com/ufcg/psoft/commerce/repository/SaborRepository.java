@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.ufcg.psoft.commerce.model.Sabor;
 
 public interface SaborRepository extends JpaRepository<Sabor, Long>{
+    public Sabor findByNome(String nome);
     // public List<Sabor> findByTipo(Long id, String tipo);
 }

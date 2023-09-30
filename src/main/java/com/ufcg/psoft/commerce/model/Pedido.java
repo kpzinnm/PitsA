@@ -18,31 +18,31 @@ import lombok.NoArgsConstructor;
 @Entity(name = "pedidos")
 public class Pedido {
 
-    @Id
     @JsonProperty("id")
+    @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "pk_id_pedido")
     private Long id;
 
-    @Column(nullable = false, name = "desc_preco")
     @JsonProperty("preco")
+    @Column(nullable = false, name = "desc_preco")
     private BigDecimal preco;
 
-    @Column(nullable = false, name = "desc_endereco_entrega")
     @JsonProperty("enderecoEntrega")
-    private BigDecimal enderecoEntrega;
+    @Column(nullable = false, name = "desc_endereco_entrega")
+    private String enderecoEntrega;
 
-    @Column(nullable = false, name = "desc_cliente_id")
     @JsonProperty("clienteId")
-    private BigDecimal clienteId;
+    @Column(nullable = false, name = "desc_cliente_id")
+    private Long clienteId;
 
-    @Column(nullable = false, name = "desc_estabelecimento_id")
     @JsonProperty("estabelecimentoId")
-    private BigDecimal estabelecimentoId;
+    @Column(nullable = false, name = "desc_estabelecimento_id")
+    private Long estabelecimentoId;
 
-    @Column(nullable = false, name = "desc_entregador_id")
     @JsonProperty("entregadorId")
-    private BigDecimal entregadorId;
+    @Column(nullable = false, name = "desc_entregador_id")
+    private Long entregadorId;
 
     @JsonProperty("pizzas")
     @OneToMany

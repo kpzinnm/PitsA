@@ -52,6 +52,17 @@ public class SaborV1GetService implements SaborGetService {
     }
 
     @Override
+    public Sabor getSaborByNome(String nome) {
+        Sabor sabor = saborRepository.findByNome(nome);
+
+        if (sabor != null) {
+            return sabor;
+        } else {
+            throw new SaborNotExistException();
+        }
+    }
+
+    @Override
     public List<SaborResponseDTO> getAllCardapio(Long id) {
         if (estabelecimentoRepository.existsById(id)) {
 
