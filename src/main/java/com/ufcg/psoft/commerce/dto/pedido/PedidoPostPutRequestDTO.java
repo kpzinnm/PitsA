@@ -1,12 +1,10 @@
 package com.ufcg.psoft.commerce.dto.pedido;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

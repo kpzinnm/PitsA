@@ -41,11 +41,24 @@ public class Pedido {
     private Long estabelecimentoId;
 
     @JsonProperty("entregadorId")
-    @Column(nullable = false, name = "desc_entregador_id")
+    @Column(nullable = true, name = "desc_entregador_id")
     private Long entregadorId;
 
-    @JsonProperty("pizzas")
+    @JsonProperty("pizzasGrandes")
     @OneToMany
-    private List<Pizza> pizzas;
+    private List<PizzaGrande> pizzasGrandes;
 
+    @JsonProperty("pizzasMedias")
+    @OneToMany
+    private List<PizzaMedia> pizzasMedias;
+
+    @JsonProperty("statusPagamento")
+    @Column(nullable = false, name = "bl_status_pagamento")
+    private boolean statusPagamento = false;
+
+    @JsonProperty("statusEntrega")
+    @Column(name = "bl_status_entrega")
+    private String statusEntrega;
+
+    public boolean getStatusPagamento() { return this.statusPagamento; }
 }

@@ -4,7 +4,9 @@
  import com.fasterxml.jackson.databind.ObjectMapper;
  import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
+ import com.ufcg.psoft.commerce.dto.pedido.PedidoResponseDTO;
  import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
+ import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
  import com.ufcg.psoft.commerce.exception.CustomErrorType;
  import com.ufcg.psoft.commerce.model.*;
  import com.ufcg.psoft.commerce.repository.*;
@@ -20,6 +22,7 @@
  import java.math.BigDecimal;
  import java.util.LinkedList;
  import java.util.List;
+ import java.util.Set;
 
  import static org.junit.jupiter.api.Assertions.*;
  import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,7 +34,7 @@
  @AutoConfigureMockMvc
  @DisplayName("Testes do controlador de pedidos")
  public class PedidoControllerTests {
-     final String URI_PEDIDOS = "/pedidos";
+     final String URI_PEDIDOS = "/api/v1/pedidos";
 
      @Autowired
      MockMvc driver;
@@ -45,8 +48,6 @@
      @Autowired
      SaborRepository saborRepository;
      @Autowired
-     PizzaRepository pizzaRepository;
-     @Autowired
      EntregadorRepository entregadorRepository;
 
      @Autowired
@@ -57,8 +58,8 @@
      Entregador entregador;
      Sabor sabor1;
      Sabor sabor2;
-     Pizza pizzaM;
-     Pizza pizzaG;
+     PizzaMedia pizzaMedia;
+     PizzaGrande pizzaGrande;
      Estabelecimento estabelecimento;
      Pedido pedido;
      Pedido pedido1;
@@ -96,24 +97,19 @@
                  .tipoVeiculo("Moto")
                  .codigoAcesso("101010")
                  .build());
-         pizzaM = Pizza.builder()
-                 .sabor1(sabor1)
-                 .tamanho("media")
+         pizzaMedia = PizzaMedia.builder()
+                 .sabor(sabor1)
                  .build();
-         pizzaG = Pizza.builder()
-                 .sabor1(sabor1)
-                 .sabor2(sabor2)
-                 .tamanho("grande")
+         pizzaGrande = PizzaGrande.builder()
+                 .sabores(Set.of(sabor1, sabor2))
                  .build();
-         List<Pizza> pizzas = List.of(pizzaM);
-         List<Pizza> pizzas1 = List.of(pizzaM, pizzaG);
          pedido = Pedido.builder()
                  .preco(new BigDecimal(10.0))
                  .enderecoEntrega("Casa 237")
                  .clienteId(cliente.getId())
                  .estabelecimentoId(estabelecimento.getId())
                  .entregadorId(entregador.getId())
-                 .pizzas(pizzas)
+                 .pizzasMedias(List.of(pizzaMedia))
                  .build();
          pedido1 = Pedido.builder()
                  .preco(new BigDecimal(10.0))
@@ -121,11 +117,15 @@
                  .clienteId(cliente.getId())
                  .estabelecimentoId(estabelecimento.getId())
                  .entregadorId(entregador.getId())
-                 .pizzas(pizzas1)
+                 .pizzasMedias(List.of(pizzaMedia))
+                 .pizzasGrandes(List.of(pizzaGrande))
                  .build();
          pedidoPostPutRequestDTO = PedidoPostPutRequestDTO.builder()
                  .enderecoEntrega(pedido.getEnderecoEntrega())
-                 .pizzas(pedido.getPizzas().stream().map((pizza) -> modelMapper.map(pizza, PizzaPostPutDTO.class)).toList())
+                 .pizzas(List.of(PizzaPostPutDTO.builder()
+                         .sabor1(modelMapper.map(sabor1, SaborPostPutRequestDTO.class))
+                         .tamanho("media")
+                         .build()))
                  .build();
      }
 
@@ -163,7 +163,9 @@
              assertAll(
                      () -> assertNotNull(resultado.getId()),
                      () -> assertEquals(pedidoPostPutRequestDTO.getEnderecoEntrega(), resultado.getEnderecoEntrega()),
-                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(), resultado.getPizzas().get(0).getSabor1()),
+                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(),
+                        modelMapper.map(resultado.getPizzasMedias().get(0).getSabor(), SaborPostPutRequestDTO.class)
+                     ),
                      () -> assertEquals(pedido.getClienteId(), resultado.getClienteId()),
                      () -> assertEquals(pedido.getEstabelecimentoId(), resultado.getEstabelecimentoId()),
                      () -> assertEquals(pedido.getPreco(), resultado.getPreco())
@@ -193,7 +195,9 @@
              assertAll(
                      () -> assertEquals(pedidoId, resultado.getId().longValue()),
                      () -> assertEquals(pedidoPostPutRequestDTO.getEnderecoEntrega(), resultado.getEnderecoEntrega()),
-                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(), resultado.getPizzas().get(0).getSabor1()),
+                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(),
+                             modelMapper.map(resultado.getPizzasMedias().get(0).getSabor(), SaborPostPutRequestDTO.class)
+                     ),
                      () -> assertEquals(pedido.getClienteId(), resultado.getClienteId()),
                      () -> assertEquals(pedido.getEstabelecimentoId(), resultado.getEstabelecimentoId()),
                      () -> assertEquals(pedido.getPreco(), resultado.getPreco())
@@ -225,6 +229,30 @@
          @Test
          @DisplayName("Quando alteramos um pedido passando codigo de acesso invalido")
          void quandoAlteramosPedidoPassandoCodigoAcessoInvalido() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS)
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("pedidoId", pedido.getId().toString())
+                             .param("codigoAcesso", "999999")
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isBadRequest())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+             // Assert
+             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+         }
+
+         @Test
+         @DisplayName("Quando alteramos um pedido passando codigo de acesso valido," +
+                 " mas que não é o cliente que fez o pedido")
+         void quandoAlteramosPedidoPassandoCodigoAcessoValidoClieteInvalido() throws Exception {
+             // Adicionar mais passos
              // Arrange
              pedidoRepository.save(pedido);
 
@@ -290,7 +318,9 @@
              assertAll(
                      () -> assertNotNull(resultado.getId()),
                      () -> assertEquals(pedidoPostPutRequestDTO.getEnderecoEntrega(), resultado.getEnderecoEntrega()),
-                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(), resultado.getPizzas().get(0).getSabor1()),
+                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(),
+                             modelMapper.map(resultado.getPizzasMedias().get(0).getSabor(), SaborPostPutRequestDTO.class)
+                     ),
                      () -> assertEquals(pedido.getClienteId(), resultado.getClienteId()),
                      () -> assertEquals(pedido.getEstabelecimentoId(), resultado.getEstabelecimentoId()),
                      () -> assertEquals(pedido.getPreco(), resultado.getPreco())
@@ -389,7 +419,9 @@
              assertAll(
                      () -> assertNotNull(resultado.getId()),
                      () -> assertEquals(pedidoPostPutRequestDTO.getEnderecoEntrega(), resultado.getEnderecoEntrega()),
-                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(), resultado.getPizzas().get(0).getSabor1()),
+                     () -> assertEquals(pedidoPostPutRequestDTO.getPizzas().get(0).getSabor1(),
+                             modelMapper.map(resultado.getPizzasMedias().get(0).getSabor(), SaborPostPutRequestDTO.class)
+                     ),
                      () -> assertEquals(pedido.getClienteId(), resultado.getClienteId()),
                      () -> assertEquals(pedido.getEstabelecimentoId(), resultado.getEstabelecimentoId()),
                      () -> assertEquals(pedido.getPreco(), resultado.getPreco())
@@ -477,6 +509,7 @@
              assertEquals("O pedido consultado nao existe!", resultado.getMessage());
          }
 
+         // Iury
          @Test
          @DisplayName("Quando um cliente excluí todos seus pedidos feitos por ele salvos")
          void quandoClienteExcluiTodosPedidosSalvos() throws Exception {
@@ -487,7 +520,8 @@
                      .enderecoEntrega("Casa 237")
                      .clienteId(cliente.getId())
                      .estabelecimentoId(estabelecimento.getId())
-                     .pizzas(List.of(pizzaM, pizzaG))
+                     .pizzasMedias(List.of(pizzaMedia))
+                     .pizzasGrandes(List.of(pizzaGrande))
                      .build());
 
              // Act
@@ -573,7 +607,8 @@
                      .enderecoEntrega("Casa 237")
                      .clienteId(cliente.getId())
                      .estabelecimentoId(estabelecimento.getId())
-                     .pizzas(List.of(pizzaM, pizzaG))
+                     .pizzasMedias(List.of(pizzaMedia))
+                     .pizzasGrandes(List.of(pizzaGrande))
                      .build());
 
              // Act
@@ -604,343 +639,344 @@
              assertTrue(responseJsonString.isBlank());
          }
 
-//         @Test
-//         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento")
-//         void quandoClienteBuscaPedidoFeitoEmEstabelecimento() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + pedido.getId())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//
-//
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-//             });
-//
-//             // Assert
-//             assertEquals(1, resultado.size());
-//             assertEquals(pedido.getId(), resultado.get(0).getId());
-//             assertEquals(pedido.getClienteId(), resultado.get(0).getClienteId());
-//             assertEquals(pedido.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento inexistente")
-//         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoInexistente() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + "999999" + "/" + pedido.getId())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isBadRequest())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-//
-//             // Assert
-//             assertEquals("O estabelecimento consultado nao existe!", resultado.getMessage());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento com pedido inexistente")
-//         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoComPedidoInexistente() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + "999999")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isBadRequest())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-//
-//             // Assert
-//             assertEquals("O pedido consultado nao existe!", resultado.getMessage());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento com cliente inexistente")
-//         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoComClienteInexistente() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + "999999" + "/" + estabelecimento.getId() + "/" + pedido.getId())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isBadRequest())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-//
-//             // Assert
-//             assertEquals("O cliente consultado nao existe!", resultado.getMessage());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento com pedidoId null")
-//         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComPedidoIdNull() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-//             });
-//
-//             // Assert
-//             assertEquals(1, resultado.size());
-//             assertEquals(pedido.getId(), resultado.get(0).getId());
-//             assertEquals(pedido.getClienteId(), resultado.get(0).getClienteId());
-//             assertEquals(pedido.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento com status")
-//         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComStatus() throws Exception {
-//             // Arrange
-//             Pedido pedido3 = pedidoRepository.save(Pedido.builder()
-//                     .preco(new BigDecimal(30.0))
-//                     .enderecoEntrega("Casa 237")
-//                     .clienteId(cliente.getId())
-//                     .estabelecimentoId(estabelecimento.getId())
-//                     .pizzas(List.of(pizzaM))
-//                     .statusEntrega("Pedido em preparo")
-//                     .build());
-//
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + pedido3.getStatusEntrega())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-//             });
-//
-//             // Assert
-//             assertEquals(1, resultado.size());
-//             assertEquals(pedido3.getId(), resultado.get(0).getId());
-//             assertEquals(pedido3.getClienteId(), resultado.get(0).getClienteId());
-//             assertEquals(pedido3.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento filtrados por entrega")
-//         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComPedidosFiltradosPorEntrega() throws Exception {
-//             // Arrange
-//             Pedido pedido3 = pedidoRepository.save(Pedido.builder()
-//                     .preco(new BigDecimal(30.0))
-//                     .enderecoEntrega("Casa 237")
-//                     .clienteId(cliente.getId())
-//                     .estabelecimentoId(estabelecimento.getId())
-//                     .pizzas(List.of(pizzaM))
-//                     .statusEntrega("Pedido entregue")
-//                     .build());
-//             Pedido pedido4 = pedidoRepository.save(Pedido.builder()
-//                     .preco(new BigDecimal(30.0))
-//                     .enderecoEntrega("Casa 237")
-//                     .clienteId(cliente.getId())
-//                     .estabelecimentoId(estabelecimento.getId())
-//                     .pizzas(List.of(pizzaM))
-//                     .statusEntrega("Pedido em preparo")
-//                     .build());
-//
-//             // Act
-//             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId())
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
-//             });
-//
-//             // Assert
-//             assertEquals(2, resultado.size());
-//             assertEquals(pedido4.getId(), resultado.get(0).getId());
-//             assertEquals(pedido4.getClienteId(), resultado.get(0).getClienteId());
-//             assertEquals(pedido4.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
-//             assertEquals(pedido3.getId(), resultado.get(1).getId());
-//             assertEquals(pedido3.getClienteId(), resultado.get(1).getClienteId());
-//             assertEquals(pedido3.getEstabelecimentoId(), resultado.get(1).getEstabelecimentoId());
-//
-//         }
-//
-//
-//     }
-//
-//     @Nested
-//     @DisplayName("Alteração de estado de pedido")
-//     public class AlteracaoEstadoPedidoTest {
-//         Pedido pedido1;
-//
-//         @BeforeEach
-//         void setUp() {
-//             pedido1 = pedidoRepository.save(Pedido.builder()
-//                     .estabelecimentoId(estabelecimento.getId())
-//                     .clienteId(cliente.getId())
-//                     .enderecoEntrega("Rua 1")
-//                     .pizzas(List.of(pizzaG))
-//                     .preco(10.0)
-//                     .build()
-//             );
-//         }
-//
-//         @Test
-//         @DisplayName("Quando o estabelecimento associa um pedido a um entregador")
-//         void quandoEstabelecimentoAssociaPedidoEntregador() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//             pedido.setStatusEntrega("Pedido pronto");
-//             entregador.setStatusAprovacao(true);
-//             List<Entregador> entregadores = new LinkedList<>();
-//             entregadores.add(entregador);
-//             estabelecimento.setEntregadoresDisponiveis(entregadores);
-//             entregador.setDisponibilidade(true);
-//
-//
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + pedido.getId() + "/" + "/associar-pedido-entregador")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("estabelecimentoId", estabelecimento.getId().toString())
-//                             .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
-//                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString, PedidoResponseDTO.class);
-//
-//             // Assert
-//             assertEquals(resultado.getStatusEntrega(), "Pedido em rota");
-//             assertEquals(entregador.getId(), resultado.getEntregadorId());
-//         }
-//
-//         @Test
-//         @DisplayName("Quando o cliente confirma a entrega de um pedido")
-//         void quandoClienteConfirmaEntregaPedido() throws Exception {
-//             // Arrange
-//             pedidoRepository.save(pedido);
-//             pedido.setStatusEntrega("Pedido em rota");
-//
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + pedido.getId() + "/" + cliente.getId() + "/cliente-confirmar-entrega")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
-//                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-//
-//             PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString, PedidoResponseDTO.class);
-//
-//             // Assert
-//             assertEquals(resultado.getStatusEntrega(), "Pedido entregue");
-//         }
-//     }
-//
-//     @Nested
-//     @DisplayName("Conjunto de casos de teste da confirmação de pagamento de um pedido")
-//     public class PedidoConfirmarPagamentoTests {
-//
-//         Pedido pedido1;
-//
-//         @BeforeEach
-//         void setUp() {
-//             pedido1 = pedidoRepository.save(Pedido.builder()
-//                     .estabelecimentoId(estabelecimento.getId())
-//                     .clienteId(cliente.getId())
-//                     .enderecoEntrega("Rua 1")
-//                     .pizzas(List.of(pizzaG))
-//                     .preco(10.0)
-//                     .build()
-//             );
-//         }
-//
-//         @Test
-//         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
-//         void confirmaPagamentoCartaoCredito() throws Exception {
-//             // Arrange
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
-//                             .param("pedidoId", pedido1.getId().toString())
-//                             .param("metodoPagamento", "Cartão de crédito")
-//                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
-//                     .andExpect(status().isOk()) // Codigo 200
-//                     .andReturn().getResponse().getContentAsString();
-//             // Assert
-//             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
-//             assertAll(
-//                     () -> assertTrue(resultado.getStatusPagamento()),
-//                     () -> assertEquals(10, resultado.getPreco())
-//             );
-//         }
-//
-//         @Test
-//         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
-//         void confirmaPagamentoCartaoDebito() throws Exception {
-//             // Arrange
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
-//                             .param("pedidoId", pedido1.getId().toString())
-//                             .param("metodoPagamento", "Cartão de débito")
-//                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
-//                     .andExpect(status().isOk()) // Codigo 200
-//                     .andReturn().getResponse().getContentAsString();
-//             // Assert
-//             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
-//             assertAll(
-//                     () -> assertTrue(resultado.getStatusPagamento()),
-//                     () -> assertEquals(9.75, resultado.getPreco())
-//             );
-//         }
-//
-//         @Test
-//         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
-//         void confirmaPagamentoPIX() throws Exception {
-//             // Arrange
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
-//                             .param("pedidoId", pedido1.getId().toString())
-//                             .param("metodoPagamento", "PIX")
-//                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
-//                     .andExpect(status().isOk()) // Codigo 200
-//                     .andReturn().getResponse().getContentAsString();
-//             // Assert
-//             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
-//             assertAll(
-//                     () -> assertTrue(resultado.getStatusPagamento()),
-//                     () -> assertEquals(9.5, resultado.getPreco())
-//             );
-//         }
+         @Test
+         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento")
+         void quandoClienteBuscaPedidoFeitoEmEstabelecimento() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + pedido.getId())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+
+
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             });
+
+             // Assert
+             assertEquals(1, resultado.size());
+             assertEquals(pedido.getId(), resultado.get(0).getId());
+             assertEquals(pedido.getClienteId(), resultado.get(0).getClienteId());
+             assertEquals(pedido.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento inexistente")
+         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoInexistente() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + "999999" + "/" + pedido.getId())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isBadRequest())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+             // Assert
+             assertEquals("O estabelecimento consultado nao existe!", resultado.getMessage());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento com pedido inexistente")
+         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoComPedidoInexistente() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + "999999")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isBadRequest())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+             // Assert
+             assertEquals("O pedido consultado nao existe!", resultado.getMessage());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca um pedido feito em um estabelecimento com cliente inexistente")
+         void quandoClienteBuscaPedidoFeitoEmEstabelecimentoComClienteInexistente() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "pedido-cliente-estabelecimento" + "/" + "999999" + "/" + estabelecimento.getId() + "/" + pedido.getId())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isBadRequest())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+             // Assert
+             assertEquals("O cliente consultado nao existe!", resultado.getMessage());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento com pedidoId null")
+         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComPedidoIdNull() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             });
+
+             // Assert
+             assertEquals(1, resultado.size());
+             assertEquals(pedido.getId(), resultado.get(0).getId());
+             assertEquals(pedido.getClienteId(), resultado.get(0).getClienteId());
+             assertEquals(pedido.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento com status")
+         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComStatus() throws Exception {
+             // Arrange
+             Pedido pedido3 = pedidoRepository.save(Pedido.builder()
+                     .preco(new BigDecimal(30.0))
+                     .enderecoEntrega("Casa 237")
+                     .clienteId(cliente.getId())
+                     .estabelecimentoId(estabelecimento.getId())
+                     .pizzasMedias(List.of(pizzaMedia))
+                     .statusEntrega("Pedido em preparo")
+                     .build());
+
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId() + "/" + pedido3.getStatusEntrega())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             });
+
+             // Assert
+             assertEquals(1, resultado.size());
+             assertEquals(pedido3.getId(), resultado.get(0).getId());
+             assertEquals(pedido3.getClienteId(), resultado.get(0).getClienteId());
+             assertEquals(pedido3.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
+         }
+
+         @Test
+         @DisplayName("Quando um cliente busca todos os pedidos feitos naquele estabelcimento filtrados por entrega")
+         void quandoClienteBuscaTodosPedidosFeitosNaqueleEstabelecimentoComPedidosFiltradosPorEntrega() throws Exception {
+             // Arrange
+             Pedido pedido3 = pedidoRepository.save(Pedido.builder()
+                     .preco(new BigDecimal(30.0))
+                     .enderecoEntrega("Casa 237")
+                     .clienteId(cliente.getId())
+                     .estabelecimentoId(estabelecimento.getId())
+                     .pizzasMedias(List.of(pizzaMedia))
+                     .statusEntrega("Pedido entregue")
+                     .build());
+             Pedido pedido4 = pedidoRepository.save(Pedido.builder()
+                     .preco(new BigDecimal(30.0))
+                     .enderecoEntrega("Casa 237")
+                     .clienteId(cliente.getId())
+                     .estabelecimentoId(estabelecimento.getId())
+                     .pizzasMedias(List.of(pizzaMedia))
+                     .statusEntrega("Pedido em preparo")
+                     .build());
+
+             // Act
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/pedidos-cliente-estabelecimento/" + cliente.getId() + "/" + estabelecimento.getId())
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso()))
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             List<PedidoResponseDTO> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             });
+
+             // Assert
+             assertEquals(2, resultado.size());
+             assertEquals(pedido4.getId(), resultado.get(0).getId());
+             assertEquals(pedido4.getClienteId(), resultado.get(0).getClienteId());
+             assertEquals(pedido4.getEstabelecimentoId(), resultado.get(0).getEstabelecimentoId());
+             assertEquals(pedido3.getId(), resultado.get(1).getId());
+             assertEquals(pedido3.getClienteId(), resultado.get(1).getClienteId());
+             assertEquals(pedido3.getEstabelecimentoId(), resultado.get(1).getEstabelecimentoId());
+
+         }
+
+
+     }
+
+     @Nested
+     @DisplayName("Alteração de estado de pedido")
+     public class AlteracaoEstadoPedidoTest {
+         Pedido pedido1;
+
+         @BeforeEach
+         void setUp() {
+             pedido1 = pedidoRepository.save(Pedido.builder()
+                     .estabelecimentoId(estabelecimento.getId())
+                     .clienteId(cliente.getId())
+                     .enderecoEntrega("Rua 1")
+                     .pizzasGrandes(List.of(pizzaGrande))
+                     .preco(new BigDecimal(10.0))
+                     .build()
+             );
+         }
+
+         @Test
+         @DisplayName("Quando o estabelecimento associa um pedido a um entregador")
+         void quandoEstabelecimentoAssociaPedidoEntregador() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+             pedido.setStatusEntrega("Pedido pronto");
+             entregador.setStatusAprovacao(true);
+             List<Entregador> entregadores = new LinkedList<>();
+             entregadores.add(entregador);
+             estabelecimento.setEntregadoresDisponiveis(entregadores);
+             entregador.setDisponibilidade(true);
+
+
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + pedido.getId() + "/" + "/associar-pedido-entregador")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("estabelecimentoId", estabelecimento.getId().toString())
+                             .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString, PedidoResponseDTO.class);
+
+             // Assert
+             assertEquals(resultado.getStatusEntrega(), "Pedido em rota");
+             assertEquals(entregador.getId(), resultado.getEntregadorId());
+         }
+
+         @Test
+         @DisplayName("Quando o cliente confirma a entrega de um pedido")
+         void quandoClienteConfirmaEntregaPedido() throws Exception {
+             // Arrange
+             pedidoRepository.save(pedido);
+             pedido.setStatusEntrega("Pedido em rota");
+
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + pedido.getId() + "/" + cliente.getId() + "/cliente-confirmar-entrega")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isOk())
+                     .andDo(print())
+                     .andReturn().getResponse().getContentAsString();
+
+             PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString, PedidoResponseDTO.class);
+
+             // Assert
+             assertEquals(resultado.getStatusEntrega(), "Pedido entregue");
+         }
+     }
+
+     // Pedro Vinícius
+     @Nested
+     @DisplayName("Conjunto de casos de teste da confirmação de pagamento de um pedido")
+     public class PedidoConfirmarPagamentoTests {
+
+         Pedido pedido1;
+
+         @BeforeEach
+         void setUp() {
+             pedido1 = pedidoRepository.save(Pedido.builder()
+                     .estabelecimentoId(estabelecimento.getId())
+                     .clienteId(cliente.getId())
+                     .enderecoEntrega("Rua 1")
+                     .pizzasGrandes(List.of(pizzaGrande))
+                     .preco(new BigDecimal(10.0))
+                     .build()
+             );
+         }
+
+         @Test
+         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
+         void confirmaPagamentoCartaoCredito() throws Exception {
+             // Arrange
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
+                             .param("pedidoId", pedido1.getId().toString())
+                             .param("metodoPagamento", "Cartão de crédito")
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isOk()) // Codigo 200
+                     .andReturn().getResponse().getContentAsString();
+             // Assert
+             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
+             assertAll(
+                     () -> assertTrue(resultado.getStatusPagamento()),
+                     () -> assertEquals(10, resultado.getPreco())
+             );
+         }
+
+         @Test
+         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
+         void confirmaPagamentoCartaoDebito() throws Exception {
+             // Arrange
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
+                             .param("pedidoId", pedido1.getId().toString())
+                             .param("metodoPagamento", "Cartão de débito")
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isOk()) // Codigo 200
+                     .andReturn().getResponse().getContentAsString();
+             // Assert
+             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
+             assertAll(
+                     () -> assertTrue(resultado.getStatusPagamento()),
+                     () -> assertEquals(9.75, resultado.getPreco())
+             );
+         }
+
+         @Test
+         @DisplayName("Quando confirmamos o pagamento de um pedido por cartão de crédito")
+         void confirmaPagamentoPIX() throws Exception {
+             // Arrange
+             // Act
+             String responseJsonString = driver.perform(put(URI_PEDIDOS + "/" + cliente.getId() + "/confirmar-pagamento")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .param("codigoAcessoCliente", cliente.getCodigoAcesso())
+                             .param("pedidoId", pedido1.getId().toString())
+                             .param("metodoPagamento", "PIX")
+                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+                     .andExpect(status().isOk()) // Codigo 200
+                     .andReturn().getResponse().getContentAsString();
+             // Assert
+             Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
+             assertAll(
+                     () -> assertTrue(resultado.getStatusPagamento()),
+                     () -> assertEquals(9.5, resultado.getPreco())
+             );
+         }
      }
  }

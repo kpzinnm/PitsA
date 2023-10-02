@@ -1,5 +1,6 @@
 package com.ufcg.psoft.commerce.model;
 
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,4 +35,10 @@ public class Estabelecimento {
     @JsonProperty("sabores")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Sabor> sabores;
+
+    // Sujeito a alteração
+    @JsonProperty("entregadoresDisponiveis")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Entregador> entregadoresDisponiveis;
+
 }
