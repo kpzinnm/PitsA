@@ -49,12 +49,12 @@ public class Pedido {
     private List<PizzaGrande> pizzasGrandes;
 
     @JsonProperty("pizzasMedias")
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<PizzaMedia> pizzasMedias;
 
     @JsonProperty("statusPagamento")
     @Column(nullable = false, name = "bl_status_pagamento")
-    private boolean statusPagamento = false;
+    private boolean statusPagamento;
 
     @JsonProperty("statusEntrega")
     @Column(name = "bl_status_entrega")

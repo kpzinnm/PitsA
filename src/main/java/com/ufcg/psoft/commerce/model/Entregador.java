@@ -42,10 +42,12 @@ public class Entregador {
 
     @JsonProperty("statusAprovacao")
     @Column(nullable = false, name = "bl_status_provacao")
+    @Builder.Default
     private boolean statusAprovacao = false;
 
     @JsonProperty("disponibilidade")
     @Column(nullable = false, name = "bl_disponibilidade")
+    @Builder.Default
     private boolean disponibilidade = true;
 
 }

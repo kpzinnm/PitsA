@@ -2,10 +2,7 @@ package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
-import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
-import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
-import com.ufcg.psoft.commerce.exception.EstabelecimentoNaoExisteException;
-import com.ufcg.psoft.commerce.model.*;
+import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.PedidoRepository;
 import com.ufcg.psoft.commerce.repository.PizzaGrandeRepository;
 import com.ufcg.psoft.commerce.repository.PizzaMediaRepository;
@@ -16,14 +13,8 @@ import com.ufcg.psoft.commerce.services.sabor.SaborGetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
-public class PedidoV1CriarService implements PedidoCriarService {
+public class PedidoV1AlterarService implements PedidoAlterarService {
 
     @Autowired
     private PedidoRepository pedidoRepository;
@@ -38,27 +29,32 @@ public class PedidoV1CriarService implements PedidoCriarService {
     EstabelecimentoPegarService estabelecimentoPegarService;
 
     @Autowired
+    PedidoGetService pedidoGetService;
+
+    @Autowired
     PedidoGerarService pedidoGerarService;
 
     @Override
-    public Pedido criarPedido(
-            Long clienteId,
+    public Pedido alterarPedido(
             String clienteCodigoAcesso,
-            Long estabelecimentoId,
+            Long pedidoId,
             PedidoPostPutRequestDTO pedidoPostPutRequestDTO
     ) {
         // Validação do cliente, codigo de acesso e estabelecimento
-        ClienteGetDTO cliente = clienteGetByIdService.getCliente(clienteId);
-        if (cliente == null) throw new ClienteNaoExisteException();
-        clienteValidaCodigoAcessoService.validaCodigoAcesso(clienteId, clienteCodigoAcesso);
-        if (
-                estabelecimentoPegarService.pegarEstabelecimento(estabelecimentoId) == null
-        ) throw new EstabelecimentoNaoExisteException();
+        Pedido pedidoFromDB = pedidoGetService.pegarPedido(pedidoId);
+        ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
+        clienteValidaCodigoAcessoService.validaCodigoAcesso(pedidoFromDB.getClienteId(), clienteCodigoAcesso);
 
-        return pedidoRepository.save(pedidoGerarService.gerarPedido(
+        Pedido newPedido = pedidoGerarService.gerarPedido(
                 pedidoPostPutRequestDTO,
                 cliente,
-                estabelecimentoId
-        ));
+                pedidoFromDB.getEstabelecimentoId());
+
+        pedidoFromDB.setPreco(newPedido.getPreco());
+        pedidoFromDB.setEnderecoEntrega(newPedido.getEnderecoEntrega());
+        pedidoFromDB.setPizzasMedias(newPedido.getPizzasMedias());
+        pedidoFromDB.setPizzasGrandes(newPedido.getPizzasGrandes());
+
+        return pedidoRepository.save(pedidoFromDB);
     }
 }
