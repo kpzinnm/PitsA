@@ -103,12 +103,12 @@
                  .tipoVeiculo("Moto")
                  .codigoAcesso("101010")
                  .build());
-         pizzaMedia = pizzaMediaRepository.save(PizzaMedia.builder()
+         pizzaMedia = PizzaMedia.builder()
                  .sabor(sabor1)
-                 .build());
-         pizzaGrande = pizzaGrandeRepository.save(PizzaGrande.builder()
+                 .build();
+         pizzaGrande = PizzaGrande.builder()
                  .sabores(Set.of(sabor1, sabor2))
-                 .build());
+                 .build();
          pedido = Pedido.builder()
                  .preco(new BigDecimal(10.0))
                  .enderecoEntrega("Casa 237")

@@ -35,7 +35,7 @@ public class PedidoController {
         @Autowired
         PedidoClienteDeleteService pedidoClienteDeleteService;
 
-        @PostMapping()
+        @PostMapping
         public ResponseEntity<?> criarPedido(@RequestParam("clienteId") Long clienteId,
                                              @RequestParam("clienteCodigoAcesso") String clienteCodigoAcesso,
                                              @RequestParam("estabelecimentoId") Long estabelecimentoId,
