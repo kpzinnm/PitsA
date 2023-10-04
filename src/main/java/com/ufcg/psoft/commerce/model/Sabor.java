@@ -1,14 +1,11 @@
 package com.ufcg.psoft.commerce.model;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,6 +43,12 @@ public class Sabor {
     @Column(nullable = false, name = "bl_disponivel")
     @JsonProperty("disponivel")
     private Boolean disponivel;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    public Set<PizzaGrande> pizzasGrandes;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "sabor")
+    public Set<PizzaMedia> pizzasMedias;
 
     public Boolean isDisponivel(){ return getDisponivel();}
 }

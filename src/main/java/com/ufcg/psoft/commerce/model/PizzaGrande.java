@@ -24,7 +24,7 @@ public class PizzaGrande implements PizzaInterface {
     private Long id;
 
     @JsonProperty("sabores")
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Sabor> sabores;
 
     @ManyToOne

@@ -24,9 +24,11 @@ public class PizzaMedia implements PizzaInterface {
 
     @JsonProperty("sabor")
     @ManyToOne
+    @JoinColumn(name = "fk_sabor_id")
     private Sabor sabor;
 
     @ManyToOne
+    @JoinColumn(name = "fk_pedido_id")
     private Pedido pedido;
 
     @Override
