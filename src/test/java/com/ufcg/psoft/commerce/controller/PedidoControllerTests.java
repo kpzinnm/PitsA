@@ -190,6 +190,7 @@
          @DisplayName("Quando alteramos um novo pedido com dados válidos")
          void quandoAlteramosPedidoValido() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
              Long pedidoId = pedido.getId();
 
@@ -244,6 +245,7 @@
          @DisplayName("Quando alteramos um pedido passando codigo de acesso invalido")
          void quandoAlteramosPedidoPassandoCodigoAcessoInvalido() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
 
              // Act
@@ -266,13 +268,13 @@
          @DisplayName("Quando alteramos um pedido passando codigo de acesso valido," +
                  " mas que não é o cliente que fez o pedido")
          void quandoAlteramosPedidoPassandoCodigoAcessoValidoClieteInvalido() throws Exception {
-             // Adicionar mais passos
              // Arrange
              cliente = clienteRepository.save(Cliente.builder()
                      .nome("Anton Egos")
                      .endereco("Paris Saint German")
                      .codigoAcesso("789101")
                      .build());
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
 
              // Act
@@ -295,6 +297,8 @@
          @DisplayName("Quando um cliente busca por todos seus pedidos salvos")
          void quandoClienteBuscaTodosPedidos() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
+             pizzaGrandeRepository.save(pizzaGrande);
              pedidoRepository.save(pedido);
              pedidoRepository.save(pedido1);
 
@@ -306,7 +310,7 @@
                      .andDo(print())
                      .andReturn().getResponse().getContentAsString();
 
-             List<Pedido> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             List<Pedido> resultado = objectMapper.readValue(responseJsonString, new TypeReference<List<Pedido>>() {
              });
 
              // Assert
@@ -317,16 +321,19 @@
          @DisplayName("Quando um cliente busca por um pedido seu salvo pelo id primeiro")
          void quandoClienteBuscaPedidoPorId() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
+             pizzaGrandeRepository.save(pizzaGrande);
              pedidoRepository.save(pedido);
 
              // Act
              String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + pedido.getId() + "/" + cliente.getId())
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
                              .contentType(MediaType.APPLICATION_JSON))
                      .andExpect(status().isOk())
                      .andDo(print())
                      .andReturn().getResponse().getContentAsString();
 
-             List<Pedido> listaResultados = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             List<Pedido> listaResultados = objectMapper.readValue(responseJsonString, new TypeReference<List<Pedido>>() {
              });
 
              Pedido resultado = listaResultados.get(0);
@@ -352,7 +359,7 @@
 
              // Act
              String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + "999999" + "/" + cliente.getId())
-                             .param("clienteId", cliente.getId().toString())
+                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
                              .contentType(MediaType.APPLICATION_JSON))
                      .andExpect(status().isBadRequest())
                      .andDo(print())
@@ -368,6 +375,7 @@
          @DisplayName("Quando um cliente busca por um pedido feito por outro cliente")
          void quandoClienteBuscaPedidoDeOutroCliente() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
              Cliente cliente1 = clienteRepository.save(Cliente.builder()
                      .nome("Catarina")
@@ -386,7 +394,7 @@
              CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
              // Assert
-             assertEquals("O pedido consultado nao pertence a esse cliente!", resultado.getMessage());
+             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
          }
 
 
@@ -394,18 +402,19 @@
          @DisplayName("Quando um estabelecimento busca todos os pedidos feitos nele")
          void quandoEstabelecimentoBuscaTodosPedidos() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
+             pizzaGrandeRepository.save(pizzaGrande);
              pedidoRepository.save(pedido);
              pedidoRepository.save(pedido1);
 
              // Act
-             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + estabelecimento.getId())
-                             .contentType(MediaType.APPLICATION_JSON)
-                             .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + estabelecimento.getId().toString())
+                             .contentType(MediaType.APPLICATION_JSON))
                      .andExpect(status().isOk())
                      .andDo(print())
                      .andReturn().getResponse().getContentAsString();
 
-             List<Pedido> resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             List<Pedido> resultado = objectMapper.readValue(responseJsonString, new TypeReference<List<Pedido>>() {
              });
 
              // Assert
@@ -416,6 +425,7 @@
          @DisplayName("Quando um estabelecimento busca por um pedido feito nele salvo pelo id primeiro")
          void quandoEstabelecimentoBuscaPedidoPorId() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
 
              // Act
@@ -426,7 +436,7 @@
                      .andDo(print())
                      .andReturn().getResponse().getContentAsString();
 
-             List<Pedido> listaResultados = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+             List<Pedido> listaResultados = objectMapper.readValue(responseJsonString, new TypeReference<List<Pedido>>() {
              });
 
              Pedido resultado = listaResultados.get(0);
@@ -468,14 +478,15 @@
          @DisplayName("Quando um estabelecimento busca por um pedido feito em outro estabelecimento")
          void quandoEstabelecimentoBuscaPedidoDeOutroEstabelecimento() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
              Estabelecimento estabelecimento1 = estabelecimentoRepository.save(Estabelecimento.builder()
                      .codigoAcesso("121212")
                      .build());
 
              // Act
-             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + pedido.getId() + "/" + estabelecimento1.getId())
-                             .param( "estabelecimentoCodigoAcesso", estabelecimento1.getCodigoAcesso())
+             String responseJsonString = driver.perform(get(URI_PEDIDOS + "/" + pedido.getId() + "/"
+                             + estabelecimento1.getId() + "/" + estabelecimento1.getCodigoAcesso())
                              .contentType(MediaType.APPLICATION_JSON)
                              .content(objectMapper.writeValueAsString(pedidoPostPutRequestDTO)))
                      .andExpect(status().isBadRequest())
@@ -485,13 +496,14 @@
              CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
              // Assert
-             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
+             assertEquals("Código de acesso não corresponde com o estabelecimento", resultado.getMessage());
          }
 
          @Test
          @DisplayName("Quando um cliente excluí um pedido feito por ele salvo")
          void quandoClienteExcluiPedidoSalvo() throws Exception {
              // Arrange
+             pizzaMediaRepository.save(pizzaMedia);
              pedidoRepository.save(pedido);
 
              // Act

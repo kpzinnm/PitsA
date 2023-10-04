@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/api/v1/pedidos", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PedidoController {
@@ -78,8 +80,8 @@ public class PedidoController {
                 @PathVariable Long clienteId,
                 @RequestParam("clienteCodigoAcesso") String clienteCodigoAcesso
         ) {
-                return ResponseEntity.status(HttpStatus.OK).body(
-                        pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, clienteCodigoAcesso)
+                return ResponseEntity.status(HttpStatus.OK).body(List.of(
+                        pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, clienteCodigoAcesso))
                 );
         }
 
@@ -98,8 +100,8 @@ public class PedidoController {
                 @PathVariable Long estabelecimentoId,
                 @PathVariable("estabelecimentoCodigoAcesso") String estabelecimentoCodigoAcesso
         ) {
-                return ResponseEntity.status(HttpStatus.OK).body(
-                        pedidoGetByEstabelecimentoService.pegarPedido(pedidoId, estabelecimentoId, estabelecimentoCodigoAcesso)
+                return ResponseEntity.status(HttpStatus.OK).body(List.of(
+                        pedidoGetByEstabelecimentoService.pegarPedido(pedidoId, estabelecimentoId, estabelecimentoCodigoAcesso))
                 );
         }
 
