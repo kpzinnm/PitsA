@@ -61,4 +61,19 @@ public class Pedido {
     private String statusEntrega;
 
     public boolean getStatusPagamento() { return this.statusPagamento; }
+
+    public void atualizaStatusPagamento(){
+        this.statusPagamento = true;
+    }
+
+    public void aplicaDescontoCartaoDebito(){
+        BigDecimal desconto = this.preco.multiply(new BigDecimal(0.025));
+        this.preco = preco.subtract(desconto);
+    }
+
+    public void aplicaDescontoPix(){
+        BigDecimal desconto = this.preco.multiply(new BigDecimal(0.05));
+        this.preco = preco.subtract(desconto);
+        System.out.println(preco);
+    }
 }
