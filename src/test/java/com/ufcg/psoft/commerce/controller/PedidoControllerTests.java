@@ -1025,7 +1025,7 @@
                         Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
                         assertAll(
                         () -> assertTrue(resultado.getStatusPagamento()),
-                        () -> assertEquals(new BigDecimal(34.125).doubleValue(), resultado.getPreco().doubleValue())
+                        () -> assertEquals(BigDecimal.valueOf(34.125), resultado.getPreco())
                 );
 
                 }
@@ -1049,7 +1049,7 @@
                         Pedido resultado = objectMapper.readValue(responseJsonString, Pedido.class);
                         assertAll(
                         () -> assertTrue(resultado.getStatusPagamento()),
-                        () -> assertEquals(new BigDecimal(33.25).doubleValue(), resultado.getPreco().doubleValue())
+                        () -> assertEquals(BigDecimal.valueOf(33.25), resultado.getPreco())
                 );
                 }
      }

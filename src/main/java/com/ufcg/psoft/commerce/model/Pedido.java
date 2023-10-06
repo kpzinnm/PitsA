@@ -67,12 +67,12 @@ public class Pedido {
     }
 
     public void aplicaDescontoCartaoDebito(){
-        BigDecimal desconto = this.preco.multiply(new BigDecimal(0.025));
+        BigDecimal desconto = this.preco.multiply(BigDecimal.valueOf(0.025));
         this.preco = preco.subtract(desconto);
     }
 
     public void aplicaDescontoPix(){
-        BigDecimal desconto = this.preco.multiply(new BigDecimal(0.05));
+        BigDecimal desconto = this.preco.multiply(BigDecimal.valueOf(0.05));
         this.preco = preco.subtract(desconto);
         System.out.println(preco);
     }
