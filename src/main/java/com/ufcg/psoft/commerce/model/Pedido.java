@@ -74,6 +74,5 @@ public class Pedido {
     public void aplicaDescontoPix(){
         BigDecimal desconto = this.preco.multiply(BigDecimal.valueOf(0.05));
         this.preco = preco.subtract(desconto);
-        System.out.println(preco);
     }
 }
