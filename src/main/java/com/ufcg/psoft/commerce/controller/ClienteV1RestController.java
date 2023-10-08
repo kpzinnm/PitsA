@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(
         value = "/api/v1/clientes",
-        produces = MediaType.APPLICATION_JSON_VALUE
-)
+        produces = MediaType.APPLICATION_JSON_VALUE)
 public class ClienteV1RestController {
 
     @Autowired
@@ -51,7 +50,7 @@ public class ClienteV1RestController {
 
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> lerCliente(
             @PathVariable("id") Long id
     ){
@@ -59,7 +58,7 @@ public class ClienteV1RestController {
                 .body(clienteGetByIdService.getCliente(id));
     }
 
-    @GetMapping()
+    @GetMapping("")
     public ResponseEntity<?> lerTodosClientes(){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteLerTodosService.getAllClientes());
