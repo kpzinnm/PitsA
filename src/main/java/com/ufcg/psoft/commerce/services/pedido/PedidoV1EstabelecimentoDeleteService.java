@@ -17,16 +17,16 @@ import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 public class PedidoV1EstabelecimentoDeleteService implements PedidoEstabelecimentoDeleteService {
 
     @Autowired
-    PedidoGetService pedidoGetService;
+    private PedidoGetService pedidoGetService;
 
     @Autowired
-    EstabelecimentoValidar estabelecimentoValidar;
+    private EstabelecimentoValidar estabelecimentoValidar;
 
     @Autowired
-    EstabelecimentoPegarService estabelecimentoBuscarService;
+    private EstabelecimentoPegarService estabelecimentoBuscarService;
 
     @Autowired
-    PedidoRepository pedidoRepository;
+    private PedidoRepository pedidoRepository;
 
     @Override
     public void deletePedido(

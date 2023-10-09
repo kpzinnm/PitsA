@@ -17,28 +17,24 @@ import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.PedidoRepository;
 import com.ufcg.psoft.commerce.services.cliente.ClienteGetByIdService;
 import com.ufcg.psoft.commerce.services.cliente.ClienteValidaCodigoAcessoService;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
 @Service
 public class PedidoV1ClienteBuscarService implements PedidoClienteBuscarService {
 
     @Autowired
-    PedidoGetService pedidoGetService;
+    private PedidoGetService pedidoGetService;
 
     @Autowired
-    ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
+    private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Autowired
-    EstabelecimentoValidar estabelecimentoValidar;
+    private PedidoRepository pedidoRepository;
 
     @Autowired
-    PedidoRepository pedidoRepository;
+    private ClienteGetByIdService clienteGetByIdService;
 
     @Autowired
-    ClienteGetByIdService clienteGetByIdService;
-
-    @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Override
     public PedidoResponseDTO buscarPedidoById(

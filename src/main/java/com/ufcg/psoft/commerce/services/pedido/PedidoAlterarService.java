@@ -1,6 +1,8 @@
 package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoResponseDTO;
 import com.ufcg.psoft.commerce.model.Pedido;
 
 
@@ -13,7 +15,7 @@ public interface PedidoAlterarService {
             PedidoPostPutRequestDTO pedidoPostPutRequestDTO
     );
 
-    public Pedido associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
-            PedidoPostPutRequestDTO pedidoPostPutRequestDTO);
+    public PedidoResponseDTO associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
+            PedidoPutRequestDTO pedidoPutRequestDTO);
 
 }

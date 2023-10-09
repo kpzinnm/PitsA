@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoResponseDTO;
 import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
 import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
@@ -71,6 +72,8 @@ public class PedidoControllerTests {
         Pedido pedido;
         Pedido pedido1;
         PedidoPostPutRequestDTO pedidoPostPutRequestDTO;
+        PedidoPutRequestDTO pedidoPutRequestDTO;
+        PedidoPutRequestDTO pedidoPutEntregueRequestDTO;
 
         @BeforeEach
         void setup() {
@@ -118,7 +121,7 @@ public class PedidoControllerTests {
                                 .entregadorId(entregador.getId())
                                 .pizzasMedias(List.of(pizzaMedia))
                                 .pizzasGrandes(List.of())
-                                .statusPagamento(false)
+                                .statusPagamento(true)
                                 .statusEntrega("Pedido entregue")
                                 .build();
                 pedido1 = Pedido.builder()
@@ -129,9 +132,15 @@ public class PedidoControllerTests {
                                 .entregadorId(entregador.getId())
                                 .pizzasMedias(List.of(pizzaMedia))
                                 .pizzasGrandes(List.of(pizzaGrande))
-                                .statusPagamento(false)
+                                .statusPagamento(true)
                                 .statusEntrega("Pedido entregue")
                                 .build();
+                pedidoPutRequestDTO = PedidoPutRequestDTO.builder()
+                                        .statusEntrega("Pedido em rota")
+                                        .build();
+                pedidoPutEntregueRequestDTO = PedidoPutRequestDTO.builder()
+                                        .statusEntrega("Pedido entregue")
+                                        .build();
                 pedidoPostPutRequestDTO = PedidoPostPutRequestDTO.builder()
                                 .enderecoEntrega(pedido.getEnderecoEntrega())
                                 .pizzas(List.of(PizzaPostPutDTO.builder()
@@ -929,6 +938,8 @@ public class PedidoControllerTests {
                 void quandoEstabelecimentoAssociaPedidoEntregador() throws Exception {
                         // Arrange
                         pizzaMediaRepository.save(pizzaMedia);
+                        pizzaGrandeRepository.save(pizzaGrande);
+
                         pedidoRepository.save(pedido);
                         pedido.setStatusEntrega("Pedido pronto");
                         entregador.setStatusAprovacao(true);
@@ -945,7 +956,7 @@ public class PedidoControllerTests {
                                                         .param("estabelecimentoCodigoAcesso",
                                                                         estabelecimento.getCodigoAcesso())
                                                         .content(objectMapper
-                                                                        .writeValueAsString(pedidoPostPutRequestDTO)))
+                                                                        .writeValueAsString(pedidoPutRequestDTO)))
                                         .andExpect(status().isOk())
                                         .andDo(print())
                                         .andReturn().getResponse().getContentAsString();
@@ -962,6 +973,8 @@ public class PedidoControllerTests {
                 @DisplayName("Quando o cliente confirma a entrega de um pedido")
                 void quandoClienteConfirmaEntregaPedido() throws Exception {
                         // Arrange
+                        pizzaMediaRepository.save(pizzaMedia);
+                        pizzaGrandeRepository.save(pizzaGrande);
                         pedidoRepository.save(pedido);
                         pedido.setStatusEntrega("Pedido em rota");
 
@@ -972,7 +985,7 @@ public class PedidoControllerTests {
                                                         .contentType(MediaType.APPLICATION_JSON)
                                                         .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
                                                         .content(objectMapper
-                                                                        .writeValueAsString(pedidoPostPutRequestDTO)))
+                                                                        .writeValueAsString(pedidoPutEntregueRequestDTO)))
                                         .andExpect(status().isOk())
                                         .andDo(print())
                                         .andReturn().getResponse().getContentAsString();

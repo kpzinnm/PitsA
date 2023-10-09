@@ -12,10 +12,10 @@ import java.util.Objects;
 public class PedidoV1GetByEstabelecimentoService implements PedidoGetByEstabelecimentoService {
 
     @Autowired
-    PedidoGetService pedidoGetService;
+    private PedidoGetService pedidoGetService;
 
     @Autowired
-    EstabelecimentoValidar estabelecimentoValidar;
+    private EstabelecimentoValidar estabelecimentoValidar;
 
     @Override
     public Pedido pegarPedido(

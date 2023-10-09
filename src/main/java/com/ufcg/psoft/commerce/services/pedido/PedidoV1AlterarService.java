@@ -2,7 +2,11 @@ package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoResponseDTO;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoCodigoAcessoDiferenteException;
+import com.ufcg.psoft.commerce.exception.EstabelecimentoSemEntregadorNoMomentoException;
+import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.PedidoRepository;
@@ -11,9 +15,9 @@ import com.ufcg.psoft.commerce.services.cliente.ClienteValidaCodigoAcessoService
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoPegarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
-
-
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,29 +29,28 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     private PedidoRepository pedidoRepository;
 
     @Autowired
-    ClienteGetByIdService clienteGetByIdService;
+    private ClienteGetByIdService clienteGetByIdService;
 
     @Autowired
-    ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
+    private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Autowired
-    EstabelecimentoPegarService estabelecimentoPegarService;
+    private EstabelecimentoPegarService estabelecimentoPegarService;
 
     @Autowired
-    PedidoGetService pedidoGetService;
+    private PedidoGetService pedidoGetService;
 
     @Autowired
-    PedidoGerarService pedidoGerarService;
+    private PedidoGerarService pedidoGerarService;
 
     @Autowired
-    EstabelecimentoValidar estabelecimentoValid;
+    private EstabelecimentoValidar estabelecimentoValid;
 
     @Override
     public Pedido alterarPedido(
             String clienteCodigoAcesso,
             Long pedidoId,
-            PedidoPostPutRequestDTO pedidoPostPutRequestDTO
-    ) {
+            PedidoPostPutRequestDTO pedidoPostPutRequestDTO) {
         // Validação do cliente, codigo de acesso e estabelecimento
         Pedido pedidoFromDB = pedidoGetService.pegarPedido(pedidoId);
         ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
@@ -67,17 +70,36 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     }
 
     @Override
-    public Pedido associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
-            PedidoPostPutRequestDTO pedidoPostPutRequestDTO) {
+    public PedidoResponseDTO associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
+            PedidoPutRequestDTO pedidoPostPutRequestDTO) {
         Pedido pedidoFromDB = pedidoGetService.pegarPedido(pedidoId);
         Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(estabelecimentoId);
         estabelecimentoValid.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
 
-        if(Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())){
-            pedidoFromDB.setStatusEntrega(pedidoPostPutRequestDTO.getEnderecoEntrega());
+        if (Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())) {
+            List<Entregador> entregadores = estabelecimento.getEntregadoresDisponiveis().stream()
+                    .collect(Collectors.toList());
 
-            pedidoRepository.deleteById(pedidoId);
-            return pedidoRepository.save(pedidoFromDB);
+            if (entregadores.size() > 0) {
+
+                pedidoFromDB.setEntregadorId(entregadores.get(0).getId());
+                pedidoFromDB.setStatusEntrega(pedidoPostPutRequestDTO.getStatusEntrega());
+
+                pedidoRepository.flush();
+
+                PedidoResponseDTO response = PedidoResponseDTO.builder()
+                                    .id(pedidoFromDB.getId())
+                                    .clienteId(pedidoFromDB.getClienteId())
+                                    .entregadorId(pedidoFromDB.getEntregadorId())
+                                    .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
+                                    .statusEntrega(pedidoFromDB.getStatusEntrega())
+                                    .build();
+
+                return response;
+            } else {
+                throw new EstabelecimentoSemEntregadorNoMomentoException();
+            }
+
         } else {
             throw new EstabelecimentoCodigoAcessoDiferenteException();
         }

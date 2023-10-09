@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
 import com.ufcg.psoft.commerce.services.pedido.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class PedidoController {
 
         @Autowired
         PedidoClienteBuscarService pedidoClienteBuscarService;
+
+        @Autowired
+        ClienteConfirmaEntrega clienteConfirmaEntrega;
 
         @PostMapping
         public ResponseEntity<?> criarPedido(@RequestParam("clienteId") Long clienteId,
@@ -191,12 +195,26 @@ public class PedidoController {
                         @PathVariable() Long pedidoId,
                         @RequestParam("estabelecimentoId") Long estabelecimentoId,
                         @RequestParam("estabelecimentoCodigoAcesso") String estabelecimentoCodigoAcesso,
-                        @Valid @RequestBody PedidoPostPutRequestDTO pedidoPostPutRequestDTO) {
+                        @Valid @RequestBody PedidoPutRequestDTO pedidoPutRequestDTO) {
                 return ResponseEntity.status(HttpStatus.OK)
                                 .body(pedidoAlterarService.associarEntregador(
                                                 pedidoId,
                                                 estabelecimentoId,
                                                 estabelecimentoCodigoAcesso,
-                                                pedidoPostPutRequestDTO));
+                                                pedidoPutRequestDTO));
+        }
+
+        @PutMapping("/{pedidoId}/{clienteId}/cliente-confirmar-entrega")
+        public ResponseEntity<?> clienteConfirmaEntrega(
+                        @PathVariable() Long pedidoId,
+                        @PathVariable() Long clienteId,
+                        @RequestParam("clienteCodigoAcesso") String clienteCodigoAcesso,
+                        @Valid @RequestBody PedidoPutRequestDTO pedidoPutRequestDTO) {
+                return ResponseEntity.status(HttpStatus.OK)
+                                .body(clienteConfirmaEntrega.confirmaEntrega(
+                                                pedidoId,
+                                                clienteId,
+                                                clienteCodigoAcesso,
+                                                pedidoPutRequestDTO));
         }
 }

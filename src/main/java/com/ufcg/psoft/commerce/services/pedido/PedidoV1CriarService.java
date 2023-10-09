@@ -19,16 +19,16 @@ public class PedidoV1CriarService implements PedidoCriarService {
     private PedidoRepository pedidoRepository;
 
     @Autowired
-    ClienteGetByIdService clienteGetByIdService;
+    private ClienteGetByIdService clienteGetByIdService;
 
     @Autowired
-    ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
+    private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Autowired
-    EstabelecimentoPegarService estabelecimentoPegarService;
+    private EstabelecimentoPegarService estabelecimentoPegarService;
 
     @Autowired
-    PedidoGerarService pedidoGerarService;
+    private PedidoGerarService pedidoGerarService;
 
     @Override
     public Pedido criarPedido(
