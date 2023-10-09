@@ -34,4 +34,10 @@ public class Estabelecimento {
     @JsonProperty("sabores")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Sabor> sabores;
+
+    // Sujeito a alteração
+    @JsonProperty("entregadoresDisponiveis")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Entregador> entregadoresDisponiveis;
+
 }
