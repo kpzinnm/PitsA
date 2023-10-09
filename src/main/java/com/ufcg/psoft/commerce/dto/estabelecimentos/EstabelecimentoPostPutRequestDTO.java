@@ -3,6 +3,7 @@ package com.ufcg.psoft.commerce.dto.estabelecimentos;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Sabor;
 
 import jakarta.validation.constraints.NotNull;
@@ -25,5 +26,8 @@ public class EstabelecimentoPostPutRequestDTO {
 
     @JsonProperty("sabores")
     private Set<Sabor> sabores;
+
+    @JsonProperty("entregadoresDisponiveis")
+    private Set<Entregador> entregadoresDisponiveis;
     
 }

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -932,7 +932,7 @@ public class PedidoControllerTests {
                         pedidoRepository.save(pedido);
                         pedido.setStatusEntrega("Pedido pronto");
                         entregador.setStatusAprovacao(true);
-                        List<Entregador> entregadores = new LinkedList<>();
+                        Set<Entregador> entregadores = new HashSet<>();
                         entregadores.add(entregador);
                         estabelecimento.setEntregadoresDisponiveis(entregadores);
                         entregador.setDisponibilidade(true);
