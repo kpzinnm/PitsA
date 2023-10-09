@@ -6,7 +6,6 @@ import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class EstabelecimentoV1PegarService implements EstabelecimentoPegarService {
@@ -16,11 +15,11 @@ public class EstabelecimentoV1PegarService implements EstabelecimentoPegarServic
 
     @Override
     public Estabelecimento pegarEstabelecimento(Long id) {
-        Optional<Estabelecimento> estabelecimento = this.repository.findById(id);
-        if(estabelecimento.isEmpty()) {
+        Estabelecimento estabelecimento = this.repository.findById(id).get();
+        if(estabelecimento == null) {
             throw new EstabelecimentoNaoExisteException();
         } else {
-            return estabelecimento.get();
+            return estabelecimento;
         }
     }
 }

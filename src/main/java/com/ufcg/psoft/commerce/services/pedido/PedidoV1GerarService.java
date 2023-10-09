@@ -17,13 +17,13 @@ import java.util.*;
 public class PedidoV1GerarService implements PedidoGerarService {
 
     @Autowired
-    SaborGetService saborGetService;
+    private SaborGetService saborGetService;
 
     @Autowired
-    PizzaMediaRepository pizzaMediaRepository;
+    private PizzaMediaRepository pizzaMediaRepository;
 
     @Autowired
-    PizzaGrandeRepository pizzaGrandeRepository;
+    private PizzaGrandeRepository pizzaGrandeRepository;
 
     @Override
     public Pedido gerarPedido(

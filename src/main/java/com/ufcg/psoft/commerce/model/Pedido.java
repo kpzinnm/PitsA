@@ -49,7 +49,7 @@ public class Pedido {
     private List<PizzaGrande> pizzasGrandes;
 
     @JsonProperty("pizzasMedias")
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pedido", fetch = FetchType.EAGER)
     private List<PizzaMedia> pizzasMedias;
 
     @JsonProperty("statusPagamento")

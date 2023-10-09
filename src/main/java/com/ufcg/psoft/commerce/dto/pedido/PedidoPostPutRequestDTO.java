@@ -24,4 +24,5 @@ public class PedidoPostPutRequestDTO {
     @JsonProperty("pizzas")
     private List<PizzaPostPutDTO> pizzas;
 
+
 }

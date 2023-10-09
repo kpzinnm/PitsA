@@ -1,9 +1,7 @@
 package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.exception.CodigoDeAcessoInvalidoException;
-import com.ufcg.psoft.commerce.exception.PedidoNotExistException;
 import com.ufcg.psoft.commerce.model.Pedido;
-import com.ufcg.psoft.commerce.repository.PedidoRepository;
 import com.ufcg.psoft.commerce.services.cliente.ClienteValidaCodigoAcessoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +12,10 @@ import java.util.Objects;
 public class PedidoV1GetByClienteService implements PedidoGetByClienteService {
 
     @Autowired
-    PedidoGetService pedidoGetService;
+    private PedidoGetService pedidoGetService;
 
     @Autowired
-    ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
+    private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Override
     public Pedido pegarPedido(
