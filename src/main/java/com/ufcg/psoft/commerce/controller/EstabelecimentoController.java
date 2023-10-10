@@ -82,18 +82,6 @@ public class EstabelecimentoController {
     }
 
     /*Gambiarra para criar um cliente interessado, finalidade de teste*/
-    @PostMapping("/{id}/sabores/interesse")
-    public ResponseEntity<?> clienteInteresse(
-            @PathVariable Long id,
-            @Valid @RequestParam("saborId") Long saborId,
-            @Valid @RequestParam("clienteId") Long clienteId,
-            @Valid @RequestParam("codigoAcesso") String codigoAcesso
-            ) {
 
-        this.estabelecimentoRecebeInteresseService.recebeInteresse(saborId, clienteId, id, codigoAcesso);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-    }
 //    public void recebeInteresse(Long saborId, Long clienteId, Long estabelecimentoId, String estabelecimentoCodigo) {
 }

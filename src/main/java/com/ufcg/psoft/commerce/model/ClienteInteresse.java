@@ -18,14 +18,10 @@ public class ClienteInteresse {
     @JsonProperty("cliente")
     private String nomeCliente;
 
-    @JsonProperty("sabor")
-    private String nomeSabor;
-
     private Long idSabor;
 
-    public ClienteInteresse(String cliente, String sabor, Long idSabor) {
+    public ClienteInteresse(String cliente, Long idSabor) {
         this.nomeCliente = cliente;
-        this.nomeSabor = sabor;
         this.idSabor = idSabor;
     }
 
