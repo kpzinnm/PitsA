@@ -2,11 +2,7 @@ package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.model.Cliente;
-import com.ufcg.psoft.commerce.services.cliente.ClienteAtualizarService;
-import com.ufcg.psoft.commerce.services.cliente.ClienteCriarService;
-import com.ufcg.psoft.commerce.services.cliente.ClienteGetByIdService;
-import com.ufcg.psoft.commerce.services.cliente.ClienteLerTodosService;
-import com.ufcg.psoft.commerce.services.cliente.ClienteRemoverService;
+import com.ufcg.psoft.commerce.services.cliente.*;
 
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -39,6 +35,9 @@ public class ClienteV1RestController {
 
     @Autowired
     ClienteAtualizarService clienteAtualizarService;
+
+    @Autowired
+    ClienteDemonstrarInteresseService clienteDemonstrarInteresseService;
 
     @PostMapping()
     public ResponseEntity<?> criarCliente(
@@ -81,6 +80,16 @@ public class ClienteV1RestController {
     ){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteAtualizarService.atualizaCliente(clientePostPutRequestDTO, id, codigoAcesso));
+    }
+
+    @PutMapping("/{id}/sabores/interesse")
+    public ResponseEntity<?> demonstrarInteresseEmSabor(
+            @PathVariable("id") Long clienteId,
+            @Valid @RequestParam("saborId") Long saborId,
+            @Valid @RequestParam("estabelecimentoId") Long estabelecimentoId
+    ) {
+        clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, estabelecimentoId);
+        return ResponseEntity.status(HttpStatus.OK).body( clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, estabelecimentoId));
     }
 
 }
