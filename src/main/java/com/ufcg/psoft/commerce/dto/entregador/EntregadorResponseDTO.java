@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.dto.entregador;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +29,13 @@ public class EntregadorResponseDTO {
 
     @JsonProperty("codigoAcesso")
     private String codigoAcesso;
+
+    @JsonProperty("statusAprovacao")
+    @Builder.Default
+    private boolean statusAprovacao = false;
+
+    @JsonProperty("disponibilidade")
+    @Builder.Default
+    private boolean disponibilidade = true;
+
 }

@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.services.estabelecimento;
 
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
+import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
@@ -27,9 +28,12 @@ public class EstabelecimentoV1CadastrarService implements EstabelecimentoCadastr
 
         Set<Sabor> saboresDefault = new HashSet<>();
 
+        Set<Entregador> entregadoresDefault = new HashSet<Entregador>();
+
         Estabelecimento estabelecimento = Estabelecimento.builder()
                 .codigoAcesso(estabelecimentoPostPutRequestDTO.getCodigoAcesso())
                 .sabores(saboresDefault)
+                .entregadoresDisponiveis(entregadoresDefault)
                 .build();
 
         if (sabores != null) {
