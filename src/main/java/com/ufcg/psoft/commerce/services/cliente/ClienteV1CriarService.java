@@ -1,5 +1,6 @@
 package com.ufcg.psoft.commerce.services.cliente;
 
+import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ public class ClienteV1CriarService implements ClienteCriarService{
 
     @Override
     public Cliente criarCliente(Cliente cliente) {
+
         return clienteRepository.save(cliente);
     }
+
 }

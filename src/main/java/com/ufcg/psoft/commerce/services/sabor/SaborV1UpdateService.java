@@ -1,5 +1,6 @@
 package com.ufcg.psoft.commerce.services.sabor;
 
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoNotificarDisponibilidadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,9 @@ public class SaborV1UpdateService implements SaborUpdateService {
 
     @Autowired
     SaborVerificaTipoService saborVerificaTipoService;
+
+    @Autowired
+    private EstabelecimentoNotificarDisponibilidadeService estabelecimentoNotificarDisponibilidadeService;
 
     @Override
     public Sabor updateById(SaborPostPutRequestDTO saborPostPutRequestDTO, Long saborId, Long estabelecimentoId,
@@ -49,7 +53,7 @@ public class SaborV1UpdateService implements SaborUpdateService {
     }
 
     @Override
-    public Sabor updateByIdDisponibilidade(SaborPostPutRequestDTO saborPostPutRequestDTO, Long saborId, Long estabelecimentoId,
+    public Sabor updateByIdDisponibilidade(Long saborId, Long estabelecimentoId,
             String estabelecimentoCodigoAcesso, Boolean disponibilidade) {
         this.estabelecimentoValidar.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
 
@@ -63,6 +67,9 @@ public class SaborV1UpdateService implements SaborUpdateService {
             if(saborUpdate.getDisponivel() == disponibilidade && disponibilidade == false){
                 throw new SaborJaEstaIndisponivelException();
             }
+
+            if(disponibilidade)
+                estabelecimentoNotificarDisponibilidadeService.notificarDisponibilidadeSabor(saborId);
 
             saborUpdate.setDisponivel(disponibilidade);
 

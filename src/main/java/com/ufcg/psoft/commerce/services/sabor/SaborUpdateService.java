@@ -6,6 +6,6 @@ import com.ufcg.psoft.commerce.model.Sabor;
 public interface SaborUpdateService {
     public Sabor updateById(SaborPostPutRequestDTO saborPostPutRequestDTO, Long saborId, Long estabelecimentoId, String estabelecimentoCodigoAcesso);
 
-    public Sabor updateByIdDisponibilidade(SaborPostPutRequestDTO saborPostPutRequestDTO, Long saborId, Long estabelecimentoId,
+    public Sabor updateByIdDisponibilidade(Long saborId, Long estabelecimentoId,
     String estabelecimentoCodigoAcesso, Boolean disponibilidade);
 }

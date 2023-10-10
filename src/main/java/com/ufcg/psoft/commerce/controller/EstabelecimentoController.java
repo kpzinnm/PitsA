@@ -2,10 +2,8 @@ package com.ufcg.psoft.commerce.controller;
 
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.estabelecimentos.EstabelecimentoPutRequestDTO;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoAtualizarService;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoBuscarService;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoCadastrarService;
-import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoDeletarService;
+import com.ufcg.psoft.commerce.repository.ClientesInteressadosRepository;
+import com.ufcg.psoft.commerce.services.estabelecimento.*;
 import com.ufcg.psoft.commerce.services.sabor.SaborGetService;
 
 import jakarta.validation.Valid;
@@ -30,6 +28,11 @@ public class EstabelecimentoController {
 
     @Autowired
     private EstabelecimentoBuscarService estabelecimentoBuscarService;
+
+    @Autowired
+    private EstabelecimentoRecebeInteresseService estabelecimentoRecebeInteresseService;
+
+
 
     @Autowired
     private SaborGetService saborGetService;
@@ -78,4 +81,7 @@ public class EstabelecimentoController {
                 .body(saborGetService.getTipo(id, tipo));
     }
 
+    /*Gambiarra para criar um cliente interessado, finalidade de teste*/
+
+//    public void recebeInteresse(Long saborId, Long clienteId, Long estabelecimentoId, String estabelecimentoCodigo) {
 }

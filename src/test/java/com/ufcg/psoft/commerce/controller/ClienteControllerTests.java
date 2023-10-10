@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.model.Estabelecimento;
+import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
+import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
+import com.ufcg.psoft.commerce.repository.SaborRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -556,160 +562,3 @@ public class ClienteControllerTests {
         }
     }
 }
-
-
-
-        // TESTES DESTINADOS A PRÓXIMA ETAPA DO PROJETO!
-/*
-    @Nested
-    @DisplayName("Conjunto de casos de demonstrar interesse em sabores")
-    class ClienteDemonstrarInteresseEmSabores {
-
-        @Autowired
-        EstabelecimentoRepository estabelecimentoRepository;
-        @Autowired
-        SaborRepository saborRepository;
-
-        Estabelecimento estabelecimento;
-        Sabor sabor;
-
-        @BeforeEach
-        void setUp() {
-            estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
-                    .codigoAcesso("654321")
-                    .build()
-            );
-            sabor = saborRepository.save(Sabor.builder()
-                    .nome("Sabor Um")
-                    .tipo("salgado")
-                    .precoM(10.0)
-                    .precoG(20.0)
-                    .disponivel(false)
-                    .build());
-        }
-
-        @AfterEach
-        void tearDown() {
-            estabelecimentoRepository.deleteAll();
-            saborRepository.deleteAll();
-        }
-
-        @Test
-        @DisplayName("Quando demonstramos interesse em um sabor válido")
-        void quandoDemonstramosInteresseEmSaborValido() throws Exception {
-            // Arrange
-            // nenhuma necessidade além do setup()
-
-            // Act
-            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .param("codigoAcesso", cliente.getCodigoAcesso())
-                            .param("saborId", sabor.getId().toString()))
-                    .andExpect(status().isOk()) // Codigo 200
-                    .andDo(print())
-                    .andReturn().getResponse().getContentAsString();
-
-            SaborResponseDTO resultado = objectMapper.readValue(responseJsonString, SaborResponseDTO.SaborResponseDTOBuilder.class).build();
-
-            // Assert
-            assertAll(
-                    () -> assertFalse(resultado.isDisponivel()),
-                    () -> assertEquals(1, resultado.getClientesInteressados().size())
-            );
-        }
-
-        @Test
-        @DisplayName("Quando demonstramos interesse em um sabor com código de acesso inválido")
-        void quandoDemonstramosInteresseEmSaborCodigoAcessoInvalido() throws Exception {
-            // Arrange
-            // nenhuma necessidade além do setup()
-
-            // Act
-            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .param("codigoAcesso", "invalido")
-                            .param("saborId", sabor.getId().toString()))
-                    .andExpect(status().isBadRequest()) // Codigo 400
-                    .andDo(print())
-                    .andReturn().getResponse().getContentAsString();
-
-            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-            // Assert
-            assertAll(
-                    () -> assertEquals("Codigo de acesso invalido!", resultado.getMessage())
-            );
-        }
-
-        @Test
-        @DisplayName("Quando demonstramos interesse em um sabor inexistente")
-        void quandoDemonstramosInteresseEmSaborInexistente() throws Exception {
-            // Arrange
-            // nenhuma necessidade além do setup()
-
-            // Act
-            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .param("codigoAcesso", cliente.getCodigoAcesso())
-                            .param("saborId", "999999"))
-                    .andExpect(status().isBadRequest()) // Codigo 400
-                    .andDo(print())
-                    .andReturn().getResponse().getContentAsString();
-
-            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-            // Assert
-            assertAll(
-                    () -> assertEquals("O sabor consultado nao existe!", resultado.getMessage())
-            );
-        }
-
-        @Test
-        @DisplayName("Quando um cliente inexistente demonstra interesse em um sabor")
-        void quandoDemonstramosInteresseEmSaborClienteInexistente() throws Exception {
-            // Arrange
-            // nenhuma necessidade além do setup()
-
-            // Act
-            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + 999999 + "/demonstrarInteresse")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .param("codigoAcesso", cliente.getCodigoAcesso())
-                            .param("saborId", sabor.getId().toString()))
-                    .andExpect(status().isBadRequest()) // Codigo 400
-                    .andDo(print())
-                    .andReturn().getResponse().getContentAsString();
-
-            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-            // Assert
-            assertAll(
-                    () -> assertEquals("O cliente consultado nao existe!", resultado.getMessage())
-            );
-        }
-
-        @Test
-        @DisplayName("Quando um cliente demonstra interesse em um sabor que já está disponível")
-        void quandoDemonstramosInteresseEmSaborJaDisponivel() throws Exception {
-            // Arrange
-            sabor.setDisponivel(true);
-            saborRepository.save(sabor);
-
-            // Act
-            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .param("codigoAcesso", cliente.getCodigoAcesso())
-                            .param("saborId", sabor.getId().toString()))
-                    .andExpect(status().isBadRequest()) // Codigo 400
-                    .andDo(print())
-                    .andReturn().getResponse().getContentAsString();
-
-            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-            // Assert
-            assertAll(
-                    () -> assertEquals("O sabor consultado ja esta disponivel!", resultado.getMessage())
-            );
-        }
-    }
-    }
-*/

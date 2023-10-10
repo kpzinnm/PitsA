@@ -69,8 +69,19 @@ public class SaborV1GetService implements SaborGetService {
             Estabelecimento estabelecimento = estabelecimentoRepository.findById(id).get();
             Set<Sabor> cardapio = estabelecimento.getSabores();
 
-            return cardapio.stream().map(sabor -> modelMapper.map(sabor, SaborResponseDTO.class))
+            List<SaborResponseDTO> saboresValidos = cardapio.stream()
+                    .filter(sabor -> sabor.isDisponivel())
+                    .map(sabor -> modelMapper.map(sabor, SaborResponseDTO.class))
                     .collect(Collectors.toList());
+
+            List<SaborResponseDTO> saboresInvalidos = cardapio.stream()
+                    .filter(sabor -> !sabor.isDisponivel())
+                    .map(sabor -> modelMapper.map(sabor, SaborResponseDTO.class))
+                    .collect(Collectors.toList());
+
+            saboresValidos.addAll(saboresInvalidos);
+
+            return saboresValidos;
         } else {
             throw new EstabelecimentoNaoExisteException();
         }

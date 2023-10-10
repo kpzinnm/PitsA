@@ -560,8 +560,8 @@ public class SaborControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertTrue(resultado.getErrors().contains("O valor nao pode ser nulo")),
-                                        () -> assertTrue(resultado.getErrors().contains("O valor nao pode ser nulo")));
+                                        () -> assertTrue(resultado.getErrors().contains("O valor do preco medio nao pode ser nulo")),
+                                        () -> assertTrue(resultado.getErrors().contains("O valor do preco grande nao pode ser nulo")));
                 }
 
                 @Test
@@ -674,7 +674,7 @@ public class SaborControllerTests {
                         // Assert
                         assertAll(
                                         () -> assertEquals("Erros de validacao encontrados", resultado.getMessage()),
-                                        () -> assertEquals("O valor nao pode ser nulo",
+                                        () -> assertEquals("O valor da disponibilidade nao pode ser nulo",
                                                         resultado.getErrors().get(0)));
                 }
 

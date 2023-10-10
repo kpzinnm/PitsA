@@ -27,17 +27,17 @@ public class SaborPostPutRequestDTO {
     private String tipo;
 
     @JsonProperty("precoM")
-    @NotNull(message = "O valor nao pode ser nulo")
+    @NotNull(message = "O valor do preco medio nao pode ser nulo")
     @Positive(message = "O valor deve ser maior que zero")
     private BigDecimal precoM;
 
     @JsonProperty("precoG")
-    @NotNull(message = "O valor nao pode ser nulo")
+    @NotNull(message = "O valor do preco grande nao pode ser nulo")
     @Positive(message = "O valor deve ser maior que zero")
     private BigDecimal precoG;
 
     @JsonProperty("disponivel")
-    @NotNull(message = "O valor nao pode ser nulo")
+    @NotNull(message = "O valor da disponibilidade nao pode ser nulo")
     private Boolean disponivel;
 
     public Boolean isDisponivel(){
