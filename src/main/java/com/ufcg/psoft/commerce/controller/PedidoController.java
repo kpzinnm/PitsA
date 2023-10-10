@@ -3,6 +3,8 @@ package com.ufcg.psoft.commerce.controller;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
 import com.ufcg.psoft.commerce.services.pedido.*;
+import com.ufcg.psoft.commerce.services.pedido.confrmacaoPagamento.PedidoconfirmaPagamentoService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,9 @@ public class PedidoController {
 
         @Autowired
         PedidoClienteDeleteService pedidoClienteDeleteService;
+        
+        @Autowired
+        PedidoconfirmaPagamentoService pedidoconfirmaPagamentoService;
 
         @Autowired
         PedidoEstabelecimentoDeleteService pedidoEstabelecimentoDeleteService;
@@ -114,6 +119,15 @@ public class PedidoController {
                                 clienteId,
                                 codigoAcesso);
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        @PutMapping("/{clienteId}/confirmar-pagamento")
+        public ResponseEntity<?> confirmaPagamento(
+                @PathVariable Long clienteId,
+                @RequestParam("codigoAcessoCliente") String clienteCodigoAcesso,
+                @RequestParam("pedidoId") Long pedidoId,
+                @RequestParam("metodoPagamento") String metodoPagamento
+        ) {
+                return ResponseEntity.status(HttpStatus.OK).body(pedidoconfirmaPagamentoService.confirmaPagamento(clienteId, clienteCodigoAcesso, pedidoId, metodoPagamento));
         }
 
         @DeleteMapping("/")
