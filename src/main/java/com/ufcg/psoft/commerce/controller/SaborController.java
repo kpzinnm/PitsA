@@ -80,12 +80,13 @@ public class SaborController {
 
         @PutMapping("/")
         public ResponseEntity<?> updateSaborPorIdDisponibilidade(
+                        @Valid @RequestBody SaborPostPutRequestDTO saborPostPutRequestDTO,
                         @RequestParam("saborId") String saborId,
                         @RequestParam("estabelecimentoId") String estabelecimentoId,
                         @RequestParam("estabelecimentoCodigoAcesso") String estabelecimentoCodigoAcesso,
                         @RequestParam("disponibilidade") String disponibilidade) {
                 return ResponseEntity.status(HttpStatus.OK)
-                                .body(saborUpdateService.updateByIdDisponibilidade(
+                                .body(saborUpdateService.updateByIdDisponibilidade(saborPostPutRequestDTO,
                                                 Long.parseLong(saborId), Long.parseLong(estabelecimentoId),
                                                 estabelecimentoCodigoAcesso, Boolean.parseBoolean(disponibilidade)));
         }

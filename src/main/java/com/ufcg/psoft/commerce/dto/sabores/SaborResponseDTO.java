@@ -1,12 +1,12 @@
 package com.ufcg.psoft.commerce.dto.sabores;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.ufcg.psoft.commerce.dto.cliente.ClienteInteresseDTO;
+import com.ufcg.psoft.commerce.model.ClienteInteresse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class SaborResponseDTO {
     private Boolean disponivel;
 
     @JsonProperty("clientesInteressados")
-    private List<ClienteInteresseDTO> clientesInteressados;
+    private List<ClienteInteresse> clientesInteressados;
 
 
     public Boolean isDisponivel(){

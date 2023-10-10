@@ -4,5 +4,5 @@ import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
 
 public interface ClienteDemonstrarInteresseService {
 
-    public SaborResponseDTO demonstraInteresse(Long saborId, Long clienteId, Long estabelecimentoId);
+    public SaborResponseDTO demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso);
 }
