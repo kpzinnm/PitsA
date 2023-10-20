@@ -7,6 +7,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteInteresseDTO;
+import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.model.ClienteInteresse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,8 +38,8 @@ public class SaborResponseDTO {
     @JsonProperty("disponivel")
     private Boolean disponivel;
 
-    @JsonProperty("clientesInteressados")
-    private List<ClienteInteresseDTO> clientesInteressados;
+    @JsonProperty("clienteInteressados")
+    private List<Cliente> clientesInteressados;
 
 
     public Boolean isDisponivel(){

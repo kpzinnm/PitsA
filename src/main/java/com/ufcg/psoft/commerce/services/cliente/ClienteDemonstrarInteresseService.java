@@ -1,8 +1,9 @@
 package com.ufcg.psoft.commerce.services.cliente;
 
-import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
+import com.ufcg.psoft.commerce.model.Sabor;
 
 public interface ClienteDemonstrarInteresseService {
 
-    public SaborResponseDTO demonstraInteresse(Long saborId, Long clienteId, Long estabelecimentoId);
+    public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso, Long estabelecimentoId);
+
 }

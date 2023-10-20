@@ -1,6 +1,9 @@
 package com.ufcg.psoft.commerce.model;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -39,9 +42,16 @@ public class Sabor {
     @JsonProperty("precoG")
     private BigDecimal precoG;
 
+    //@OneToMany(mappedBy = "sabor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonProperty("clienteInteressados")
+    @OneToMany(cascade = CascadeType.PERSIST)
+    private List<Cliente> clienteInteressados;
+
     @Column(nullable = false, name = "bl_disponivel")
     @JsonProperty("disponivel")
     private Boolean disponivel;
 
     public Boolean isDisponivel(){ return getDisponivel();}
+
+    //public void iniciarInteresse(){ this.clienteInteressados = new HashSet<>(); }
 }

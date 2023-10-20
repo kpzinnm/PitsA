@@ -82,14 +82,15 @@ public class ClienteV1RestController {
                 .body(clienteAtualizarService.atualizaCliente(clientePostPutRequestDTO, id, codigoAcesso));
     }
 
-    @PutMapping("/{id}/sabores/interesse")
+    @PutMapping("/{id}/demonstrarInteresse")
     public ResponseEntity<?> demonstrarInteresseEmSabor(
             @PathVariable("id") Long clienteId,
             @Valid @RequestParam("saborId") Long saborId,
-            @Valid @RequestParam("estabelecimentoId") Long estabelecimentoId
+            @Valid @RequestParam("estabelecimentoId") Long estabelecimentoId,
+            @RequestParam("codigoAcesso") String codigoAcesso
     ) {
-        clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, estabelecimentoId);
-        return ResponseEntity.status(HttpStatus.OK).body( clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, estabelecimentoId));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso, estabelecimentoId));
     }
 
 }

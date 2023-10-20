@@ -14,5 +14,4 @@ public class ClienteInteresseSaborEvent extends ApplicationEvent {
         this.clienteInteresse = clienteInteresse;
 
     }
-
 }

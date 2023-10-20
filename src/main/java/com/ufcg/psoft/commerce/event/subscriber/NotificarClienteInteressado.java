@@ -12,7 +12,7 @@ public class NotificarClienteInteressado {
     @EventListener
     public void notificarCliente(ClienteInteresseSaborEvent event){
         String nomecliente = event.getClienteInteresse().getNomeCliente();
-        Long idSabor = event.getClienteInteresse().getIdSabor();
-        System.out.println(nomecliente + " o sabor com id " + idSabor + " está novamente disponivel.");
+        //String nomeSabor = event.getClienteInteresse().getSabor().getNome();
+        System.out.println(nomecliente + ", o sabor " + " está novamente disponivel.");
     }
 }

@@ -59,7 +59,7 @@ public class SaborV1UpdateService implements SaborUpdateService {
 
         if (saborRepository.existsById(saborId)) {
             Sabor saborUpdate = saborRepository.findById(saborId).get();
-            
+
             if(saborUpdate.getDisponivel() == disponibilidade && disponibilidade == true){
                 throw new SaborJaEstaDisponivelException();
             }

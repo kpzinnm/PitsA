@@ -26,9 +26,9 @@ public class EstabelecimentoV1RecebeInteresseService implements EstabelecimentoR
 
     @Override
     public void recebeInteresse(Long saborId, Long clienteId, Long estabelecimentoId) {
-        Cliente cliente = modelMapper.map(clienteGetByIdService.getCliente(clienteId), Cliente.class);
+        /*Cliente cliente = modelMapper.map(clienteGetByIdService.getCliente(clienteId), Cliente.class);
         ClienteInteresse clienteInteresse = new ClienteInteresse(cliente.getNome(), saborId);
-        clientesInteressadosRepository.save(clienteInteresse);
+        clientesInteressadosRepository.save(clienteInteresse);*/
     }
 
 

@@ -29,10 +29,9 @@ public class EstabelecimentoV1NotificarDisponibilidadeService implements Estabel
         inicializarClienteInteresses();
 
         clienteInteresses.forEach(clienteInteresse -> {
-                    if (clienteInteresse.getIdSabor().equals(saborId)) {
+                   /* if (clienteInteresse.getSabor().getId().equals(saborId)) {
                         publisher.publishEvent(new ClienteInteresseSaborEvent(this, clienteInteresse));
-                    }
+                    }*/
                 });
-
     }
 }

@@ -1,28 +1,30 @@
-package com.ufcg.psoft.commerce.model;
+    package com.ufcg.psoft.commerce.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
+    import com.fasterxml.jackson.annotation.JsonProperty;
+    import jakarta.persistence.*;
+    import lombok.*;
 
-@Entity
-@Data
-@Getter
-@NoArgsConstructor
-public class ClienteInteresse {
+    @Entity
+    @Data
+    @Getter
+    @NoArgsConstructor
+    public class ClienteInteresse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "pk_id_clienteInteresse")
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        @Column(name = "pk_id_clienteInteresse")
+        private Long id;
 
-    @JsonProperty("cliente")
-    private String nomeCliente;
+        @JsonProperty("cliente")
+        private String nomeCliente;
 
-    private Long idSabor;
+        //@OneToOne
+  //      @JsonProperty("sabor")
+//        private Sabor sabor;
 
-    public ClienteInteresse(String cliente, Long idSabor) {
-        this.nomeCliente = cliente;
-        this.idSabor = idSabor;
+        public ClienteInteresse(String cliente, Sabor sabor) {
+            this.nomeCliente = cliente;
+            //this.sabor = sabor;
+        }
+
     }
-
-}
