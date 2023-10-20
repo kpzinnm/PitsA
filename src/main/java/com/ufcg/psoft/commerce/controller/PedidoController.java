@@ -120,6 +120,20 @@ public class PedidoController {
                                 codigoAcesso);
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+
+        @PutMapping("/pedido-pronto")
+        public ResponseEntity<?> setPedidoPronto(
+                @RequestParam("pedidoId") Long pedidoId,
+                @RequestParam("estabelecimentoId") Long estabelecimentoId,
+                @RequestParam("estabelecimentoCodigoAcesso") String estabelecimentoCodigoAcesso
+        ) {
+                return ResponseEntity.status(HttpStatus.OK).body(pedidoAlterarService.setPedidoPronto(
+                        estabelecimentoId,
+                        pedidoId,
+                        estabelecimentoCodigoAcesso
+                ));
+        }
+
         @PutMapping("/{clienteId}/confirmar-pagamento")
         public ResponseEntity<?> confirmaPagamento(
                 @PathVariable Long clienteId,

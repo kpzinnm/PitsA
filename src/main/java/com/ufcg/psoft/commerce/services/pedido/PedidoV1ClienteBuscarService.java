@@ -85,7 +85,7 @@ public class PedidoV1ClienteBuscarService implements PedidoClienteBuscarService 
         ) {
        
         List<PedidoResponseDTO> pedidosResponse = this.buscarPedidos(clienteId, estabelecimentoId, clienteCodigoAcesso);
-        pedidosResponse.stream().filter(pedido -> pedido.getStatusEntrega().equals(status)).toList();
+        pedidosResponse.stream().filter(pedido -> pedido.getStatus().equals(status)).toList();
 
         return pedidosResponse;
     }

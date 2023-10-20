@@ -17,7 +17,7 @@ public class PedidoPagarPorPix implements MetodosPagamentoService{
 
         Pedido pedido = pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, clienteCodAcesso);
         pedido.aplicaDescontoPix();
-        pedido.atualizaStatusPagamento();
+
         return pedido;
     }
     

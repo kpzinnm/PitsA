@@ -18,9 +18,6 @@ public class PedidoPagarPorCartaoCredito implements MetodosPagamentoService{
     public Pedido confirmaPagamentoService(Long clienteId, String clienteCodAcesso, Long pedidoId,
             String metodoPagamento) {
         Pedido pedido = pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, clienteCodAcesso);
-
-        pedido.atualizaStatusPagamento();
-
         return pedido;
     }
     

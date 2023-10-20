@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PedidoPutRequestDTO {
 
-    @JsonProperty("statusEntrega")
-    private String statusEntrega;
+    @JsonProperty("status")
+    private String status;
 
 }

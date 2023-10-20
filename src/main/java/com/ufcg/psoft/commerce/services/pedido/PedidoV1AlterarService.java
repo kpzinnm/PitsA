@@ -6,6 +6,8 @@ import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.pedido.PedidoResponseDTO;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoCodigoAcessoDiferenteException;
 import com.ufcg.psoft.commerce.exception.EstabelecimentoSemEntregadorNoMomentoException;
+import com.ufcg.psoft.commerce.exception.PedidoNotPreparedException;
+import com.ufcg.psoft.commerce.exception.PedidoNotReadyException;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Pedido;
@@ -46,6 +48,9 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     @Autowired
     private EstabelecimentoValidar estabelecimentoValid;
 
+    @Autowired
+    private PedidoGetByEstabelecimentoService pedidoGetByEstabelecimentoService;
+
     @Override
     public Pedido alterarPedido(
             String clienteCodigoAcesso,
@@ -73,35 +78,63 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     public PedidoResponseDTO associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
             PedidoPutRequestDTO pedidoPostPutRequestDTO) {
         Pedido pedidoFromDB = pedidoGetService.pegarPedido(pedidoId);
-        Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(estabelecimentoId);
-        estabelecimentoValid.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
+        if (Objects.equals(pedidoFromDB.getStatus(), "Pedido pronto")) {
+            Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(estabelecimentoId);
+            estabelecimentoValid.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
 
-        if (Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())) {
-            List<Entregador> entregadores = estabelecimento.getEntregadoresDisponiveis().stream()
-                    .collect(Collectors.toList());
+            if (Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())) {
+                List<Entregador> entregadores = estabelecimento.getEntregadoresDisponiveis().stream()
+                        .collect(Collectors.toList());
 
-            if (entregadores.size() > 0) {
+                if (entregadores.size() > 0) {
 
-                pedidoFromDB.setEntregadorId(entregadores.get(0).getId());
-                pedidoFromDB.setStatusEntrega(pedidoPostPutRequestDTO.getStatusEntrega());
+                    pedidoFromDB.setEntregadorId(entregadores.get(0).getId());
+                    pedidoFromDB.setStatus(pedidoPostPutRequestDTO.getStatus());
 
-                pedidoRepository.flush();
+                    pedidoRepository.flush();
 
-                PedidoResponseDTO response = PedidoResponseDTO.builder()
-                                    .id(pedidoFromDB.getId())
-                                    .clienteId(pedidoFromDB.getClienteId())
-                                    .entregadorId(pedidoFromDB.getEntregadorId())
-                                    .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
-                                    .statusEntrega(pedidoFromDB.getStatusEntrega())
-                                    .build();
+                    PedidoResponseDTO response = PedidoResponseDTO.builder()
+                            .id(pedidoFromDB.getId())
+                            .clienteId(pedidoFromDB.getClienteId())
+                            .entregadorId(pedidoFromDB.getEntregadorId())
+                            .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
+                            .status(pedidoFromDB.getStatus())
+                            .build();
 
-                return response;
+                    return response;
+                } else {
+                    throw new EstabelecimentoSemEntregadorNoMomentoException();
+                }
+
             } else {
-                throw new EstabelecimentoSemEntregadorNoMomentoException();
+                throw new EstabelecimentoCodigoAcessoDiferenteException();
             }
-
         } else {
-            throw new EstabelecimentoCodigoAcessoDiferenteException();
+            throw new PedidoNotReadyException();
+        }
+
+    }
+
+    @Override
+    public PedidoResponseDTO setPedidoPronto(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso) {
+        Pedido pedido = pedidoGetByEstabelecimentoService.pegarPedido(
+                pedidoId,
+                estabelecimentoId,
+                estabelecimentoCodigoAcesso
+        );
+
+        if (Objects.equals(pedido.getStatus(), "Pedido em preparo")) {
+            pedido.setStatus("Pedido pronto");
+            pedidoRepository.flush();
+            return PedidoResponseDTO.builder()
+                    .id(pedido.getId())
+                    .clienteId(pedido.getClienteId())
+                    .entregadorId(pedido.getEntregadorId())
+                    .estabelecimentoId(pedido.getEstabelecimentoId())
+                    .status(pedido.getStatus())
+                    .build();
+        } else {
+            throw new PedidoNotPreparedException();
         }
     }
 }
