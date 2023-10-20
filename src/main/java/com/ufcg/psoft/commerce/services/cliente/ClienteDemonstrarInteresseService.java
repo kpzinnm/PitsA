@@ -4,6 +4,6 @@ import com.ufcg.psoft.commerce.model.Sabor;
 
 public interface ClienteDemonstrarInteresseService {
 
-    public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso, Long estabelecimentoId);
+    public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso);
 
 }

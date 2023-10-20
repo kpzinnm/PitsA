@@ -3,9 +3,7 @@ package com.ufcg.psoft.commerce.services.cliente;
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.dto.cliente.ClienteInteresseDTO;
 import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
-import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
-import com.ufcg.psoft.commerce.exception.SaborIndisponivelNaoEncontradoException;
-import com.ufcg.psoft.commerce.exception.SaborJaEstaDisponivelException;
+import com.ufcg.psoft.commerce.exception.*;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.ClienteInteresse;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
@@ -51,25 +49,22 @@ public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInt
     private ModelMapper modelMapper;
 
     @Override
-    public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso, Long estabelecimentoId) {
+    public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso) {
 
         Cliente cliente = clienteRepository.findById(clienteId).orElseThrow(ClienteNaoExisteException::new);
+        if(!saborRepository.existsById(saborId)) throw new SaborNotExistException();
 
         if (Objects.equals(clienteId, cliente.getId())
                 &&
                 Objects.equals(cliente.getCodigoAcesso(), codigoAcesso)) {
 
-            List<Sabor> sabores = saborGetService.getAllCardapioSabor(estabelecimentoId);
-            Sabor saborConsultado = new Sabor();
+            List<Sabor> sabores = saborRepository.findAll();
 
-            for (Sabor sabor : sabores) {
-                if (sabor.getId().equals(saborId)) {
-                    saborConsultado = sabor;
-                }
-            }
+            Sabor saborConsultado = saborRepository.findById(saborId).get();
 
-            //ClienteInteresse clienteInteresse = new ClienteInteresse(cliente.getNome(), saborConsultado);
-            //saborConsultado.iniciarInteresse();
+            if(saborConsultado.isDisponivel())
+                throw new SaborJaEstaDisponivelException();
+
             if(saborConsultado.getDisponivel() == null)
                 saborConsultado.setClienteInteressados(new ArrayList<>());
 
@@ -77,47 +72,9 @@ public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInt
 
             saborRepository.flush();
 
-            //clientesInteressadosRepository.save(clienteInteresse);
-
-            /*List<Estabelecimento> estabelecimentos = estabelecimentoBuscarService.listarTodos();
-
-            Set<Sabor> sabores = new HashSet<Sabor>();
-
-            for (Estabelecimento estabelecimento : estabelecimentos) {
-                sabores.addAll(estabelecimento.getSabores());
-            }
-            List<Sabor> saboresReal = sabores.stream().filter(sabor -> sabor.getId().equals(saborId))
-                    .collect(Collectors.toList());
-
-            SaborResponseDTO saborResponseDTO = null;*/
-
-            /*if (saboresReal.size() == 1) {
-
-                saborResponseDTO = modelMapper.map(saboresReal.get(0), SaborResponseDTO.class);
-
-                Boolean saborEstaIndisponivel = saborResponseDTO.isDisponivel();
-
-                if (!saborEstaIndisponivel) {
-                    throw new SaborJaEstaDisponivelException();
-                }
-
-                saborResponseDTO.getClientesInteressados().add(clienteInteresse);
-
-                clienteRepository.flush();
-
-            }*/
-
-            /*SaborResponseDTO saborResponseDTO = SaborResponseDTO.builder()
-                    .id(saborConsultado.getId())
-                    .tipo(saborConsultado.getTipo())
-                    .nome(saborConsultado.getNome())
-                    .precoG(saborConsultado.getPrecoG())
-                    .precoM(saborConsultado.getPrecoM())
-                    .disponivel(saborConsultado.getDisponivel())
-                    .clientesInteressados().build();*/
            return saborConsultado;
         } else {
-            throw new SaborIndisponivelNaoEncontradoException();
+            throw new CodigoDeAcessoInvalidoException();
         }
 
     }

@@ -86,11 +86,10 @@ public class ClienteV1RestController {
     public ResponseEntity<?> demonstrarInteresseEmSabor(
             @PathVariable("id") Long clienteId,
             @Valid @RequestParam("saborId") Long saborId,
-            @Valid @RequestParam("estabelecimentoId") Long estabelecimentoId,
             @RequestParam("codigoAcesso") String codigoAcesso
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso, estabelecimentoId));
+                .body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso));
     }
 
 }

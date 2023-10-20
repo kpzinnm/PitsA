@@ -596,7 +596,7 @@ public class ClienteControllerTests {
                     .build()
             );
 
-            saborCadastraService.cadastrarSabor(saborPostPutRequestDTO, estabelecimento.getId(), clientePostPutRequestDTO.getCodigoAcesso());
+            saborCadastraService.cadastrarSabor(saborPostPutRequestDTO, estabelecimento.getId(), estabelecimento.getCodigoAcesso());
 
 
 
@@ -622,10 +622,8 @@ public class ClienteControllerTests {
             String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("codigoAcesso", cliente.getCodigoAcesso())
-                            .param("saborId", sabor.getId().toString())
-                            .param("estabelecimentoId", estabelecimento.getId().toString()
-                            )
-                    ).andExpect(status().isOk()) // Codigo 200
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
