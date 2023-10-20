@@ -8,6 +8,7 @@ import com.ufcg.psoft.commerce.exception.EstabelecimentoCodigoAcessoDiferenteExc
 import com.ufcg.psoft.commerce.exception.EstabelecimentoSemEntregadorNoMomentoException;
 import com.ufcg.psoft.commerce.exception.PedidoNotPreparedException;
 import com.ufcg.psoft.commerce.exception.PedidoNotReadyException;
+import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Pedido;
@@ -47,6 +48,9 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
 
     @Autowired
     private EstabelecimentoValidar estabelecimentoValid;
+
+    @Autowired
+    private PedidoNotificaStatusEventManager pedidoNotificaStatusEventManager;
 
     @Autowired
     private PedidoGetByEstabelecimentoService pedidoGetByEstabelecimentoService;
@@ -100,7 +104,8 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                             .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
                             .status(pedidoFromDB.getStatus())
                             .build();
-
+                    ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
+                    pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregadores.get(0));
                     return response;
                 } else {
                     throw new EstabelecimentoSemEntregadorNoMomentoException();

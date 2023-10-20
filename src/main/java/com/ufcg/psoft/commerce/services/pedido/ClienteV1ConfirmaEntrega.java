@@ -55,7 +55,8 @@ public class ClienteV1ConfirmaEntrega implements ClienteConfirmaEntrega {
                         .estabelecimentoId(pedido.getEstabelecimentoId())
                         .status(pedido.getStatus())
                         .build();
-                
+
+                pedidoNotificaStatusEventManager.notificaEstabelecimentoStatusEntrega(pedido);
                 return response;
             } else throw new CodigoDeAcessoInvalidoException();
         } else throw new PedidoNotOnTheWayException();
