@@ -2,6 +2,7 @@ package com.ufcg.psoft.commerce.services.pedido;
 
 import java.util.Objects;
 
+import com.ufcg.psoft.commerce.exception.PedidoNotOnTheWayException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,24 +35,26 @@ public class ClienteV1ConfirmaEntrega implements ClienteConfirmaEntrega {
             PedidoPutRequestDTO pedidoPutRequestDTO) {
 
         Pedido pedido = pedidoGetService.pegarPedido(pedidoId);
-        ClienteGetDTO cliente = clienteGetByIdService.getCliente(clienteId);
-        clienteValidaCodigoAcessoService.validaCodigoAcesso(clienteId, clienteCodigoAcesso);
 
-        if (Objects.equals(pedido.getClienteId(), cliente.getId())) {
-            pedido.setStatusEntrega(pedidoPutRequestDTO.getStatusEntrega());
+        if (Objects.equals(pedido.getStatus(), "Pedido em rota")) {
+            ClienteGetDTO cliente = clienteGetByIdService.getCliente(clienteId);
+            clienteValidaCodigoAcessoService.validaCodigoAcesso(clienteId, clienteCodigoAcesso);
 
-            pedidoRepository.flush();
+            if (Objects.equals(pedido.getClienteId(), cliente.getId())) {
+                pedido.setStatus(pedidoPutRequestDTO.getStatus());
 
-            PedidoResponseDTO response = PedidoResponseDTO.builder()
-                    .id(pedido.getId())
-                    .clienteId(pedido.getClienteId())
-                    .entregadorId(pedido.getEntregadorId())
-                    .estabelecimentoId(pedido.getEstabelecimentoId())
-                    .statusEntrega(pedido.getStatusEntrega())
-                    .build();
+                pedidoRepository.flush();
 
-            return response;
-        } else throw new CodigoDeAcessoInvalidoException();
+                PedidoResponseDTO response = PedidoResponseDTO.builder()
+                        .id(pedido.getId())
+                        .clienteId(pedido.getClienteId())
+                        .entregadorId(pedido.getEntregadorId())
+                        .estabelecimentoId(pedido.getEstabelecimentoId())
+                        .status(pedido.getStatus())
+                        .build();
+
+                return response;
+            } else throw new CodigoDeAcessoInvalidoException();
+        } else throw new PedidoNotOnTheWayException();
     }
-
 }

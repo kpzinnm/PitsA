@@ -18,4 +18,6 @@ public interface PedidoAlterarService {
     public PedidoResponseDTO associarEntregador(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso,
             PedidoPutRequestDTO pedidoPutRequestDTO);
 
+    public PedidoResponseDTO setPedidoPronto(Long pedidoId, Long estabelecimentoId, String estabelecimentoCodigoAcesso);
+
 }

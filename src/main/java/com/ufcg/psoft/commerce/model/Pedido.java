@@ -41,7 +41,7 @@ public class Pedido {
     private Long estabelecimentoId;
 
     @JsonProperty("entregadorId")
-    @Column(nullable = true, name = "desc_entregador_id")
+    @Column(name = "desc_entregador_id")
     private Long entregadorId;
 
     @JsonProperty("pizzasGrandes")
@@ -56,15 +56,12 @@ public class Pedido {
     @Column(nullable = false, name = "bl_status_pagamento")
     private boolean statusPagamento;
 
-    @JsonProperty("statusEntrega")
-    @Column(name = "bl_status_entrega")
-    private String statusEntrega;
+    @JsonProperty("status")
+    @Column(nullable = false, name = "desc_status")
+    private String status;
 
     public boolean getStatusPagamento() { return this.statusPagamento; }
 
-    public void atualizaStatusPagamento(){
-        this.statusPagamento = true;
-    }
 
     public void aplicaDescontoCartaoDebito(){
         BigDecimal desconto = this.preco.multiply(BigDecimal.valueOf(0.025));

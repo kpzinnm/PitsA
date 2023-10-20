@@ -72,7 +72,7 @@ public class PedidoV1GerarService implements PedidoGerarService {
                 .pizzasMedias(pizzasMedias)
                 .pizzasGrandes(pizzasGrandes)
                 .statusPagamento(false)
-                .statusEntrega("")
+                .status("Pedido recebido")
                 .build();
     }
 

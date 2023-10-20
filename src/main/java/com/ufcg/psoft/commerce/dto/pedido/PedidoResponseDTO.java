@@ -26,6 +26,6 @@ public class PedidoResponseDTO {
     @JsonProperty("entregadorId")
     private Long entregadorId;
 
-    @JsonProperty("statusEntrega")
-    private String statusEntrega;
+    @JsonProperty("status")
+    private String status;
 }
