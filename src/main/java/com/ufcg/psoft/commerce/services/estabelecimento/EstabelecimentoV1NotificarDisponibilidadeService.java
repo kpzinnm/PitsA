@@ -1,37 +1,25 @@
 package com.ufcg.psoft.commerce.services.estabelecimento;
 
 import com.ufcg.psoft.commerce.event.ClienteInteresseSaborEvent;
-import com.ufcg.psoft.commerce.model.ClienteInteresse;
-import com.ufcg.psoft.commerce.repository.ClientesInteressadosRepository;
+import com.ufcg.psoft.commerce.event.eventModels.ClienteInteressadoEvent;
+import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.model.Sabor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class EstabelecimentoV1NotificarDisponibilidadeService implements EstabelecimentoNotificarDisponibilidadeService {
 
     @Autowired
-    private ClientesInteressadosRepository clientesInteressadosRepository;
-
-    @Autowired
     private ApplicationEventPublisher publisher;
 
-    private List<ClienteInteresse> clienteInteresses;
-
-    public void inicializarClienteInteresses() {
-        clienteInteresses = clientesInteressadosRepository.findAll();
-    }
     @Override
-    public void notificarDisponibilidadeSabor(Long saborId) {
+    public void notificarDisponibilidadeSabor(Sabor sabor) {
 
-        inicializarClienteInteresses();
+        for(Cliente cliente : sabor.getClienteInteressados()){
+            publisher.publishEvent(new ClienteInteresseSaborEvent(this, new ClienteInteressadoEvent(cliente, sabor)));
+        }
 
-        clienteInteresses.forEach(clienteInteresse -> {
-                   /* if (clienteInteresse.getSabor().getId().equals(saborId)) {
-                        publisher.publishEvent(new ClienteInteresseSaborEvent(this, clienteInteresse));
-                    }*/
-                });
     }
 }

@@ -69,7 +69,7 @@ public class SaborV1UpdateService implements SaborUpdateService {
             }
 
             if(disponibilidade)
-                estabelecimentoNotificarDisponibilidadeService.notificarDisponibilidadeSabor(saborId);
+                estabelecimentoNotificarDisponibilidadeService.notificarDisponibilidadeSabor(saborUpdate);
 
             saborUpdate.setDisponivel(disponibilidade);
 
