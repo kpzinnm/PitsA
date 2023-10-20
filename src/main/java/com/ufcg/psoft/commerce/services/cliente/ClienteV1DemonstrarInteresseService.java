@@ -1,5 +1,6 @@
 package com.ufcg.psoft.commerce.services.cliente;
 
+
 import com.ufcg.psoft.commerce.exception.*;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.model.Sabor;
@@ -11,15 +12,15 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Objects;
 
+
 @Service
 public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInteresseService {
 
-    @Autowired
+
     private ClienteRepository clienteRepository;
 
     @Autowired
     private SaborRepository saborRepository;
-
 
     @Override
     public Sabor demonstraInteresse(Long saborId, Long clienteId, String codigoAcesso) {
@@ -44,6 +45,7 @@ public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInt
             saborRepository.flush();
 
            return saborConsultado;
+
         } else {
             throw new CodigoDeAcessoInvalidoException();
         }
@@ -51,4 +53,3 @@ public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInt
     }
 
 }
-

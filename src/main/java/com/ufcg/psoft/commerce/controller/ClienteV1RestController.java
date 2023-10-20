@@ -90,6 +90,7 @@ public class ClienteV1RestController {
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso));
+
     }
 
 }

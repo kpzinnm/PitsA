@@ -18,8 +18,6 @@ public class PedidoPagarPorCartaoDebito implements MetodosPagamentoService{
         Pedido pedido = pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, clienteCodAcesso);
 
         pedido.aplicaDescontoCartaoDebito();
-        pedido.atualizaStatusPagamento();
-
         return pedido;
     }
     

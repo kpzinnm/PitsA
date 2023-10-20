@@ -35,9 +35,9 @@ public class SaborResponseDTO {
     @JsonProperty("disponivel")
     private Boolean disponivel;
 
+
     @JsonProperty("clienteInteressados")
     private List<Cliente> clientesInteressados;
-
 
     public Boolean isDisponivel(){
         return getDisponivel();
