@@ -1,8 +1,6 @@
 package com.ufcg.psoft.commerce.event.subscriber;
 
 import com.ufcg.psoft.commerce.event.ClienteInteresseSaborEvent;
-import com.ufcg.psoft.commerce.model.Cliente;
-import com.ufcg.psoft.commerce.model.Sabor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 

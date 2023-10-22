@@ -28,6 +28,9 @@ public class ClienteV1ConfirmaEntrega implements ClienteConfirmaEntrega {
     private ClienteGetByIdService clienteGetByIdService;
 
     @Autowired
+    private PedidoNotificaStatusEventManager pedidoNotificaStatusEventManager;
+
+    @Autowired
     private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Override
@@ -52,7 +55,7 @@ public class ClienteV1ConfirmaEntrega implements ClienteConfirmaEntrega {
                         .estabelecimentoId(pedido.getEstabelecimentoId())
                         .status(pedido.getStatus())
                         .build();
-
+                
                 return response;
             } else throw new CodigoDeAcessoInvalidoException();
         } else throw new PedidoNotOnTheWayException();
