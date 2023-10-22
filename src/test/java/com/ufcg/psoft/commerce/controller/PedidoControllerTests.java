@@ -546,6 +546,7 @@ public class PedidoControllerTests {
         void quandoClienteExcluiPedidoSalvo() throws Exception {
             // Arrange
             pizzaMediaRepository.save(pizzaMedia);
+            pedido.setStatus("Pedido entregue");
             pedidoRepository.save(pedido);
 
             // Act
