@@ -2,6 +2,7 @@ package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
+import com.ufcg.psoft.commerce.exception.PedidoEmAndamentoException;
 import com.ufcg.psoft.commerce.exception.PedidoJaEstaProntoException;
 import com.ufcg.psoft.commerce.exception.PedidoNotExistException;
 import com.ufcg.psoft.commerce.model.Pedido;
@@ -22,6 +23,9 @@ public class PedidoV1ClienteDeleteService implements PedidoClienteDeleteService 
     private PedidoRepository pedidoRepository;
 
     @Autowired
+    private PedidoGetService pedidoGetService;
+
+    @Autowired
     private ClienteValidaCodigoAcessoService clienteValidaCodigoAcessoService;
 
     @Autowired
@@ -32,47 +36,45 @@ public class PedidoV1ClienteDeleteService implements PedidoClienteDeleteService 
             Long pedidoId,
             Long clienteId,
             String clienteCodigoAcesso) {
-        if (pedidoRepository.existsById(pedidoId)) {
-            Pedido pedido = pedidoRepository.findById(pedidoId).get();
+        Pedido pedido = pedidoGetService.pegarPedido(pedidoId);
+        if(verifyStatusPedidoEquals(pedido.getStatus(), "Pedido entregue")){
             clienteGetByIdService.getCliente(clienteId);
             clienteValidaCodigoAcessoService.validaCodigoAcesso(pedido.getClienteId(), clienteCodigoAcesso);
             pedidoRepository.delete(pedido);
         } else {
-            throw new PedidoNotExistException();
+            throw new PedidoEmAndamentoException();
         }
     }
 
     @Override
     public void clienteDeleteTodosPedidosFeitos(Long clienteId) {
         ClienteGetDTO cliente = clienteGetByIdService.getCliente(clienteId);
-        if (cliente == null)
-            throw new ClienteNaoExisteException();
 
         List<Pedido> pedidos = pedidoRepository.findAll();
-        pedidos.stream().filter(pedido -> pedido.getClienteId().equals(clienteId)).toList();
-
+        pedidos.stream().filter(pedido -> pedido.getClienteId().equals(cliente.getId()) && pedido.getStatus().equals("Pedido entregue")).toList();
         pedidoRepository.deleteAll(pedidos);
 
     }
 
-    // Refatorar esse method ta muito misturado, acredito que já funciona dessa forma.
-
     @Override
     public void cancelarPedido(Long pedidoId, String clienteCodigoAcesso) {
-        if (pedidoRepository.existsById(pedidoId)) {
-            Pedido pedido = pedidoRepository.findById(pedidoId).get();
-            ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedido.getClienteId());
-            if (cliente == null)
-                throw new ClienteNaoExisteException();
-            if (Objects.equals(pedido.getClienteId(), cliente.getId())
-                    &&
-                    !Objects.equals(pedido.getStatus(), "Pedido pronto")) {
-                clienteValidaCodigoAcessoService.validaCodigoAcesso(pedido.getClienteId(), clienteCodigoAcesso);
-                pedidoRepository.delete(pedido);
-            } else if (Objects.equals(pedido.getStatus(), "Pedido pronto")){
-                throw new PedidoJaEstaProntoException();
-            }
-        } else
-            throw new PedidoNotExistException();
+        Pedido pedido = pedidoGetService.pegarPedido(pedidoId);
+        ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedido.getClienteId());
+        if (verifyClienteEquals(pedido.getClienteId(), cliente.getId())
+                &&
+                !verifyStatusPedidoEquals(pedido.getStatus(), "Pedido pronto")) {
+            clienteValidaCodigoAcessoService.validaCodigoAcesso(pedido.getClienteId(), clienteCodigoAcesso);
+            pedidoRepository.delete(pedido);
+        } else if (verifyStatusPedidoEquals(pedido.getStatus(), "Pedido pronto")) {
+            throw new PedidoJaEstaProntoException();
+        }
+    }
+
+    private Boolean verifyClienteEquals(Long idClientePedido, Long idClientePassado) {
+        return Objects.equals(idClientePedido, idClientePassado);
+    }
+
+    private Boolean verifyStatusPedidoEquals(String statusPedido, String statusVerify) {
+        return Objects.equals(statusPedido, statusVerify);
     }
 }
