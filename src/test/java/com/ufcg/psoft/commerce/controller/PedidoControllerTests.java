@@ -934,8 +934,6 @@ public class PedidoControllerTests {
     @Nested
     @DisplayName("Alteração de estado de pedido")
     public class AlteracaoEstadoPedidoTest {
-        Pedido pedido1;
-
         @BeforeEach
         void setUp() {
             pizzaMediaRepository.save(pizzaMedia);
@@ -1061,12 +1059,12 @@ public class PedidoControllerTests {
         @DisplayName("Quando o cliente confirma a entrega de um pedido")
         void quandoClienteConfirmaEntregaPedido() throws Exception {
             // Arrange
-            pedido.setStatus("Pedido em rota");
-            pedidoRepository.save(pedido);
+            pedido1.setStatus("Pedido em rota");
+            pedidoRepository.save(pedido1);
 
             // Act
             String responseJsonString = driver
-                    .perform(put(URI_PEDIDOS + "/" + pedido.getId() + "/" + cliente.getId()
+                    .perform(put(URI_PEDIDOS + "/" + pedido1.getId() + "/" + cliente.getId()
                             + "/cliente-confirmar-entrega")
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("clienteCodigoAcesso", cliente.getCodigoAcesso())
