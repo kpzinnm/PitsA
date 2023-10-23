@@ -4,6 +4,9 @@ import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
 import com.ufcg.psoft.commerce.model.Cliente;
 import com.ufcg.psoft.commerce.services.cliente.*;
 
+import com.ufcg.psoft.commerce.services.pedido.PedidoClienteFilterStatusGetService;
+import com.ufcg.psoft.commerce.services.pedido.PedidoGetByClienteService;
+import com.ufcg.psoft.commerce.services.pedido.PedidoStatusOrdenadoGetByClienteService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +42,19 @@ public class ClienteV1RestController {
     @Autowired
     ClienteDemonstrarInteresseService clienteDemonstrarInteresseService;
 
+    @Autowired
+    PedidoGetByClienteService pedidoGetByClienteService;
+
+    @Autowired
+    PedidoStatusOrdenadoGetByClienteService pedidoStatusOrdenadoGetByClienteService;
+
+    @Autowired
+    PedidoClienteFilterStatusGetService pedidoClienteFilterStatusGetService;
+
     @PostMapping()
     public ResponseEntity<?> criarCliente(
             @RequestBody @Valid ClientePostPutRequestDTO clientePostPutRequestDTO
-            ) {
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(clienteCriarService.criarCliente
                         (modelMapper.map(clientePostPutRequestDTO, Cliente.class)));
@@ -52,13 +64,13 @@ public class ClienteV1RestController {
     @GetMapping("/{id}")
     public ResponseEntity<?> lerCliente(
             @PathVariable("id") Long id
-    ){
+    ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteGetByIdService.getCliente(id));
     }
 
     @GetMapping("")
-    public ResponseEntity<?> lerTodosClientes(){
+    public ResponseEntity<?> lerTodosClientes() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteLerTodosService.getAllClientes());
     }
@@ -67,7 +79,7 @@ public class ClienteV1RestController {
     public ResponseEntity<?> removeCliente(
             @PathVariable("id") Long id,
             @RequestParam("codigoAcesso") String codigoAcesso
-    ){
+    ) {
         clienteRemoverService.removeCliente(id, codigoAcesso);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
     }
@@ -77,7 +89,7 @@ public class ClienteV1RestController {
             @PathVariable("id") Long id,
             @RequestParam("codigoAcesso") String codigoAcesso,
             @RequestBody @Valid ClientePostPutRequestDTO clientePostPutRequestDTO
-    ){
+    ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(clienteAtualizarService.atualizaCliente(clientePostPutRequestDTO, id, codigoAcesso));
     }
@@ -92,4 +104,28 @@ public class ClienteV1RestController {
         return ResponseEntity.status(HttpStatus.OK).body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso));
     }
 
+    @GetMapping("/{clienteId}/pedidos")
+    public ResponseEntity<?> lerPedido(
+            @PathVariable("clienteId") Long clienteId,
+            @Valid @RequestParam("codigoAcesso") String codigoAcesso,
+            @Valid @RequestParam("pedidoId") Long pedidoId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, codigoAcesso));
+    }
+
+    @GetMapping("/{clienteId}/pedidos")
+    public ResponseEntity<?> listarPedidosCliente(@PathVariable Long clienteId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pedidoStatusOrdenadoGetByClienteService.listarPedidosCliente(clienteId));
+    }
+
+    @GetMapping("/{clienteId}/pedidos")
+    public ResponseEntity<?> listarPedidosCliente(
+            @PathVariable Long clienteId,
+            @RequestParam("pedidoStatus") String pedidoStatus
+    ){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pedidoClienteFilterStatusGetService.listarPedidosClientePorStatus(clienteId,pedidoStatus ));
+    }
 }
