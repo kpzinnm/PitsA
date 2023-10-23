@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
-import com.ufcg.psoft.commerce.exception.DisponibilidadeNullException;
 import com.ufcg.psoft.commerce.exception.SaborJaEstaDisponivelException;
 import com.ufcg.psoft.commerce.exception.SaborJaEstaIndisponivelException;
 import com.ufcg.psoft.commerce.exception.SaborNotExistException;
 import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
+
 
 @Service
 public class SaborV1UpdateService implements SaborUpdateService {
@@ -53,28 +53,27 @@ public class SaborV1UpdateService implements SaborUpdateService {
     }
 
     @Override
-    public Sabor updateByIdDisponibilidade(SaborPostPutRequestDTO saborPostPutRequestDTO, Long saborId,
-            Long estabelecimentoId,
+    public Sabor updateByIdDisponibilidade(Long saborId, Long estabelecimentoId,
             String estabelecimentoCodigoAcesso, Boolean disponibilidade) {
         this.estabelecimentoValidar.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
 
         if (saborRepository.existsById(saborId)) {
             Sabor saborUpdate = saborRepository.findById(saborId).get();
 
-            if (saborUpdate.getDisponivel() == disponibilidade && disponibilidade == true) {
+            if(saborUpdate.getDisponivel() == disponibilidade && disponibilidade == true){
                 throw new SaborJaEstaDisponivelException();
             }
 
-            if (saborUpdate.getDisponivel() == disponibilidade && disponibilidade == false) {
+            if(saborUpdate.getDisponivel() == disponibilidade && disponibilidade == false){
                 throw new SaborJaEstaIndisponivelException();
             }
+
+            if(disponibilidade)
+                estabelecimentoNotificarDisponibilidadeService.notificarDisponibilidadeSabor(saborUpdate);
 
             saborUpdate.setDisponivel(disponibilidade);
 
             saborRepository.flush();
-
-            if (disponibilidade)
-                estabelecimentoNotificarDisponibilidadeService.notificarDisponibilidadeSabor(saborId);
 
             return saborUpdate;
         } else {

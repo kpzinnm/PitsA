@@ -89,6 +89,30 @@ public class SaborV1GetService implements SaborGetService {
     }
 
     @Override
+    public List<Sabor> getAllCardapioSabor(Long id) {
+        if (estabelecimentoRepository.existsById(id)) {
+
+            Estabelecimento estabelecimento = estabelecimentoRepository.findById(id).get();
+            Set<Sabor> cardapio = estabelecimento.getSabores();
+
+            List<Sabor> saboresValidos = cardapio.stream()
+                    .filter(sabor -> sabor.isDisponivel())
+                    .collect(Collectors.toList());
+
+            List<Sabor> saboresInvalidos = cardapio.stream()
+                    .filter(sabor -> !sabor.isDisponivel())
+                    .collect(Collectors.toList());
+
+            saboresValidos.addAll(saboresInvalidos);
+
+            return saboresValidos;
+        } else {
+            throw new EstabelecimentoNaoExisteException();
+        }
+
+    }
+
+    @Override
     public List<Sabor> getTipo(Long id, String tipo) {
         if (estabelecimentoRepository.existsById(id)) {
             List<Sabor> sabores = new ArrayList<>();

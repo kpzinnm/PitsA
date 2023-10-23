@@ -9,6 +9,8 @@ import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
+import java.util.ArrayList;
+
 @Service
 public class SaborV1CadastraService implements SaborCadastraService {
 
@@ -33,6 +35,7 @@ public class SaborV1CadastraService implements SaborCadastraService {
         
         Estabelecimento estabelecimentoCurrent = estabelecimentoRepository.findById(id).get();
 
+
         Sabor sabor = saborRepository.save(
                 Sabor.builder()
                         .disponivel(saborPostPutRequestDTO.getDisponivel())
@@ -40,6 +43,7 @@ public class SaborV1CadastraService implements SaborCadastraService {
                         .tipo(saborPostPutRequestDTO.getTipo())
                         .precoG(saborPostPutRequestDTO.getPrecoG())
                         .precoM(saborPostPutRequestDTO.getPrecoM())
+                        .clienteInteressados(new ArrayList<>())
                         .build());
 
 

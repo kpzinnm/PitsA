@@ -14,6 +14,7 @@ import com.ufcg.psoft.commerce.model.Sabor;
 import com.ufcg.psoft.commerce.repository.ClienteRepository;
 import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
 import com.ufcg.psoft.commerce.repository.SaborRepository;
+import com.ufcg.psoft.commerce.services.sabor.SaborCadastraService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,8 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,14 +39,19 @@ public class ClienteControllerTests {
 
     @Autowired
     MockMvc driver;
-
     @Autowired
     ClienteRepository clienteRepository;
-
+    @Autowired
+    EstabelecimentoRepository estabelecimentoRepository;
+    @Autowired
+    SaborCadastraService saborCadastraService;
+    @Autowired
+    SaborRepository saborRepository;
     ObjectMapper objectMapper = new ObjectMapper();
-
+    Estabelecimento estabelecimento;
+    Sabor sabor;
     Cliente cliente;
-
+    Cliente cliente2;
     ClientePostPutRequestDTO clientePostPutRequestDTO;
 
     @BeforeEach
@@ -59,6 +64,14 @@ public class ClienteControllerTests {
                 .codigoAcesso("123456")
                 .build()
         );
+
+        cliente2 = clienteRepository.save(Cliente.builder()
+                .nome("Cliente Dois dos Santos")
+                .endereco("Rua dos Testadores, 123")
+                .codigoAcesso("456789")
+                .build()
+        );
+
         clientePostPutRequestDTO = ClientePostPutRequestDTO.builder()
                 .nome(cliente.getNome())
                 .endereco(cliente.getEndereco())
@@ -563,74 +576,98 @@ public class ClienteControllerTests {
         }
     }
 
-
-        // TESTES DESTINADOS A PRÓXIMA ETAPA DO PROJETO!
     @Nested
     @DisplayName("Conjunto de casos de demonstrar interesse em sabores")
     class ClienteDemonstrarInteresseEmSabores {
-
-        @Autowired
-        EstabelecimentoRepository estabelecimentoRepository;
-        @Autowired
-        SaborRepository saborRepository;
-
-        Estabelecimento estabelecimento;
-        Sabor sabor;
 
         SaborPostPutRequestDTO saborPostPutRequestDTO;
 
         @BeforeEach
         void setUp() {
-            objectMapper.registerModule(new JavaTimeModule());
-                sabor = saborRepository.save(Sabor.builder()
-                                .nome("Calabresa")
-                                .tipo("salgado")
-                                .precoM(new BigDecimal(10.0))
-                                .precoG(new BigDecimal(15.0))
-                                .disponivel(true)
-                                .build());
-                saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
-                                .nome(sabor.getNome())
-                                .tipo(sabor.getTipo())
-                                .precoM(sabor.getPrecoM())
-                                .precoG(sabor.getPrecoG())
-                                .disponivel(sabor.getDisponivel())
-                                .build();
-                estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
-                                .codigoAcesso("654321")
-                                .build());
+            sabor = saborRepository.save(Sabor.builder()
+                    .nome("Sabor Um")
+                    .tipo("salgado")
+                    .precoM(new BigDecimal("10.0"))
+                    .precoG(new BigDecimal("20.0"))
+                    .disponivel(false)
+                    .build());
+
+            saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
+                    .nome(sabor.getNome())
+                    .tipo(sabor.getTipo())
+                    .precoM(sabor.getPrecoM())
+                    .precoG(sabor.getPrecoG())
+                    .disponivel(sabor.getDisponivel())
+                    .build();
+
+            estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
+                    .codigoAcesso("654321")
+                    .build()
+            );
+
+            saborCadastraService.cadastrarSabor(saborPostPutRequestDTO, estabelecimento.getId(), estabelecimento.getCodigoAcesso());
+
         }
 
         @AfterEach
         void tearDown() {
             estabelecimentoRepository.deleteAll();
             saborRepository.deleteAll();
-            clienteRepository.deleteAll();
         }
 
-        // @Test
-        // @DisplayName("Quando demonstramos interesse em um sabor válido")
-        // void quandoDemonstramosInteresseEmSaborValido() throws Exception {
-        //     // Arrange
-        //     // nenhuma necessidade além do setup()
+        @Test
+        @DisplayName("Quando demonstramos interesse em um sabor válido")
+        void quandoDemonstramosInteresseEmSaborValido() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            // Act
+            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
 
-        //     // Act
-        //     String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-        //                     .contentType(MediaType.APPLICATION_JSON)
-        //                     .param("codigoAcesso", cliente.getCodigoAcesso())
-        //                     .param("saborId", sabor.getId().toString()))
-        //             .andExpect(status().isOk()) // Codigo 200
-        //             .andDo(print())
-        //             .andReturn().getResponse().getContentAsString();
+            SaborResponseDTO resultado = objectMapper.readValue(responseJsonString, SaborResponseDTO.SaborResponseDTOBuilder.class).build();
 
-        //     SaborResponseDTO resultado = objectMapper.readValue(responseJsonString, SaborResponseDTO.SaborResponseDTOBuilder.class).build();
+            // Assert
+            assertAll(
+                    () -> assertFalse(resultado.isDisponivel()),
+                    () -> assertEquals(1, resultado.getClientesInteressados().size())
+            );
+        }
 
-        //     // Assert
-        //     assertAll(
-        //             () -> assertFalse(resultado.isDisponivel()),
-        //             () -> assertEquals(1, resultado.getClientesInteressados().size())
-        //     );
-        // }
+        @Test
+        @DisplayName("Quando varios clientes demonstram interesse em um sabor válido")
+        void quandoVariosClientesDemonstramInteresseEmSaborValido() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            // Act
+            driver.perform(put(URI_CLIENTES + "/" + cliente2.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente2.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            SaborResponseDTO resultado = objectMapper.readValue(responseJsonString, SaborResponseDTO.SaborResponseDTOBuilder.class).build();
+
+            // Assert
+            assertAll(
+                    () -> assertFalse(resultado.isDisponivel()),
+                    () -> assertEquals(2, resultado.getClientesInteressados().size())
+            );
+        }
 
         @Test
         @DisplayName("Quando demonstramos interesse em um sabor com código de acesso inválido")
@@ -655,28 +692,28 @@ public class ClienteControllerTests {
             );
         }
 
-        // @Test
-        // @DisplayName("Quando demonstramos interesse em um sabor inexistente")
-        // void quandoDemonstramosInteresseEmSaborInexistente() throws Exception {
-        //     // Arrange
-        //     // nenhuma necessidade além do setup()
+        @Test
+        @DisplayName("Quando demonstramos interesse em um sabor inexistente")
+        void quandoDemonstramosInteresseEmSaborInexistente() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
 
-        //     // Act
-        //     String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-        //                     .contentType(MediaType.APPLICATION_JSON)
-        //                     .param("codigoAcesso", cliente.getCodigoAcesso())
-        //                     .param("saborId", "999999"))
-        //             .andExpect(status().isBadRequest()) // Codigo 400
-        //             .andDo(print())
-        //             .andReturn().getResponse().getContentAsString();
+            // Act
+            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente.getCodigoAcesso())
+                            .param("saborId", "999999"))
+                    .andExpect(status().isBadRequest()) // Codigo 400
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
 
-        //     CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
-        //     // Assert
-        //     assertAll(
-        //             () -> assertEquals("O sabor consultado nao existe!", resultado.getMessage())
-        //     );
-        // }
+            // Assert
+            assertAll(
+                    () -> assertEquals("O sabor consultado nao existe!", resultado.getMessage())
+            );
+        }
 
         @Test
         @DisplayName("Quando um cliente inexistente demonstra interesse em um sabor")
@@ -701,28 +738,28 @@ public class ClienteControllerTests {
             );
         }
 
-        // @Test
-        // @DisplayName("Quando um cliente demonstra interesse em um sabor que já está disponível")
-        // void quandoDemonstramosInteresseEmSaborJaDisponivel() throws Exception {
-        //     // Arrange
-        //     sabor.setDisponivel(true);
-        //     saborRepository.save(sabor);
+        @Test
+        @DisplayName("Quando um cliente demonstra interesse em um sabor que já está disponível")
+        void quandoDemonstramosInteresseEmSaborJaDisponivel() throws Exception {
+            // Arrange
+            sabor.setDisponivel(true);
+            saborRepository.save(sabor);
 
-        //     // Act
-        //     String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
-        //                     .contentType(MediaType.APPLICATION_JSON)
-        //                     .param("codigoAcesso", cliente.getCodigoAcesso())
-        //                     .param("saborId", sabor.getId().toString()))
-        //             .andExpect(status().isBadRequest()) // Codigo 400
-        //             .andDo(print())
-        //             .andReturn().getResponse().getContentAsString();
+            // Act
+            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isBadRequest()) // Codigo 400
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
 
-        //     CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
 
-        //     // Assert
-        //     assertAll(
-        //             () -> assertEquals("O sabor consultado ja esta disponivel!", resultado.getMessage())
-        //     );
-        // }
+            // Assert
+            assertAll(
+                    () -> assertEquals("O sabor consultado ja esta disponivel!", resultado.getMessage())
+            );
+        }
     }
 }

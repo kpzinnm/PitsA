@@ -31,8 +31,8 @@ public class Estabelecimento {
     @Column(name = "desc_codigoAcesso", length = 6, nullable = false, unique = true)
     private String codigoAcesso;
 
-    @JsonProperty("sabores")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonProperty("sabores")
     private Set<Sabor> sabores;
 
     // Sujeito a alteração

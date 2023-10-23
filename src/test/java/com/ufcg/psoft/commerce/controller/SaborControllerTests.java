@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,6 +56,7 @@ public class SaborControllerTests {
                                 .precoM(new BigDecimal(10.0))
                                 .precoG(new BigDecimal(15.0))
                                 .disponivel(true)
+                                .clienteInteressados(new ArrayList<>())
                                 .build());
                 saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
                                 .nome(sabor.getNome())
@@ -89,6 +91,7 @@ public class SaborControllerTests {
                                         .precoM(new BigDecimal("10.0"))
                                         .precoG(new BigDecimal("15.0"))
                                         .disponivel(true)
+                                        .clienteInteressados(new ArrayList<>())
                                         .build();
                         Sabor sabor2 = Sabor.builder()
                                         .nome("Frango")
@@ -96,6 +99,7 @@ public class SaborControllerTests {
                                         .precoM(new BigDecimal("10.0"))
                                         .precoG(new BigDecimal("15.0"))
                                         .disponivel(true)
+                                        .clienteInteressados(new ArrayList<>())
                                         .build();
                         saborRepository.saveAll(Arrays.asList(sabor1, sabor2));
 
@@ -658,7 +662,7 @@ public class SaborControllerTests {
                         saborPostPutRequestDTO.setDisponivel(null);
 
                         // Act
-                        String responseJsonString = driver.perform(put(URI_SABORES + "/")
+                        String responseJsonString = driver.perform(put(URI_SABORES + "")
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .param("saborId", sabor.getId().toString())
                                         .param("estabelecimentoId", estabelecimento.getId().toString())
