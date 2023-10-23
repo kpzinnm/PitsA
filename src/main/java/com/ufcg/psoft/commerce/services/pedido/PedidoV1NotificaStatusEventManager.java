@@ -2,7 +2,7 @@ package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
 import com.ufcg.psoft.commerce.event.NotificaClienteStatusPedidoEvent;
-import com.ufcg.psoft.commerce.model.Cliente;
+
 import com.ufcg.psoft.commerce.model.Entregador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

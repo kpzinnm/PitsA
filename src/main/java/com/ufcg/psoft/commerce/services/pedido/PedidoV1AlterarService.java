@@ -8,7 +8,7 @@ import com.ufcg.psoft.commerce.exception.EstabelecimentoCodigoAcessoDiferenteExc
 import com.ufcg.psoft.commerce.exception.EstabelecimentoSemEntregadorNoMomentoException;
 import com.ufcg.psoft.commerce.exception.PedidoNotPreparedException;
 import com.ufcg.psoft.commerce.exception.PedidoNotReadyException;
-import com.ufcg.psoft.commerce.model.Cliente;
+
 import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Pedido;

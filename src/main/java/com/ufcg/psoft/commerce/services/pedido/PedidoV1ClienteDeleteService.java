@@ -1,10 +1,10 @@
 package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
-import com.ufcg.psoft.commerce.exception.ClienteNaoExisteException;
+
 import com.ufcg.psoft.commerce.exception.PedidoEmAndamentoException;
 import com.ufcg.psoft.commerce.exception.PedidoJaEstaProntoException;
-import com.ufcg.psoft.commerce.exception.PedidoNotExistException;
+
 import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.PedidoRepository;
 import com.ufcg.psoft.commerce.services.cliente.ClienteGetByIdService;

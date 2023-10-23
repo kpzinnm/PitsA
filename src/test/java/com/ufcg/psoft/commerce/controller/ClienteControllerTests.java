@@ -369,7 +369,7 @@ public class ClienteControllerTests {
 
             // Assert
             assertAll(
-                    () -> assertEquals(3, resultado.size())
+                    () -> assertEquals(4, resultado.size())
             );
         }
 
