@@ -17,6 +17,7 @@ import java.util.Objects;
 public class ClienteV1DemonstrarInteresseService implements ClienteDemonstrarInteresseService {
 
 
+    @Autowired
     private ClienteRepository clienteRepository;
 
     @Autowired
