@@ -104,7 +104,7 @@ public class ClienteV1RestController {
         return ResponseEntity.status(HttpStatus.OK).body(clienteDemonstrarInteresseService.demonstraInteresse(saborId, clienteId, codigoAcesso));
     }
 
-    @GetMapping("/{clienteId}/pedidos")
+    @GetMapping("/{clienteId}/ler-pedido")
     public ResponseEntity<?> lerPedido(
             @PathVariable("clienteId") Long clienteId,
             @Valid @RequestParam("codigoAcesso") String codigoAcesso,
@@ -114,14 +114,14 @@ public class ClienteV1RestController {
                 .body(pedidoGetByClienteService.pegarPedido(pedidoId, clienteId, codigoAcesso));
     }
 
-    @GetMapping("/{clienteId}/pedidos")
+    @GetMapping("/{clienteId}/listar-pedidos")
     public ResponseEntity<?> listarPedidosCliente(@PathVariable Long clienteId) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(pedidoStatusOrdenadoGetByClienteService.listarPedidosCliente(clienteId));
     }
 
-    @GetMapping("/{clienteId}/pedidos")
-    public ResponseEntity<?> listarPedidosCliente(
+    @GetMapping("/{clienteId}/listar-pedidos-por-status")
+    public ResponseEntity<?> listarPedidosClientePorStatus(
             @PathVariable Long clienteId,
             @RequestParam("pedidoStatus") String pedidoStatus
     ){
