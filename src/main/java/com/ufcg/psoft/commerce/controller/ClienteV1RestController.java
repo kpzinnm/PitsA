@@ -121,7 +121,7 @@ public class ClienteV1RestController {
     }
 
     @GetMapping("/{clienteId}/pedidos")
-    public ResponseEntity<?> listarPedidosCliente(
+    public ResponseEntity<?> listarPedidosClientePorStatus(
             @PathVariable Long clienteId,
             @RequestParam("pedidoStatus") String pedidoStatus
     ){
