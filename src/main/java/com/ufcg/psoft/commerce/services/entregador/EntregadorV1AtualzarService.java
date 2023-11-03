@@ -42,4 +42,19 @@ public class EntregadorV1AtualzarService implements EntregadorAtualizarService{
             throw new EntregadorNaoCadastradoException();
         }
     }
+
+    @Override
+    public EntregadorGetRequestDTO atualizaDisponibilidade(Long idEntregador, String codigoAcesso, boolean diponibilidade) {
+        if(entregadorRepository.existsById(idEntregador)){
+            entregadorValidaCodigoAcessoService.validacodigoAcessoService(idEntregador, codigoAcesso);
+
+            Entregador entregador = entregadorRepository.findById(idEntregador).get();
+
+            entregador.setDisponibilidade(diponibilidade);
+
+            return modelMapper.map(entregador, EntregadorGetRequestDTO.class);
+        }
+        throw new EntregadorNaoCadastradoException();
+
+    }
 }

@@ -2,10 +2,7 @@ package com.ufcg.psoft.commerce.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
@@ -48,6 +45,6 @@ public class Entregador {
     @JsonProperty("disponibilidade")
     @Column(nullable = false, name = "bl_disponibilidade")
     @Builder.Default
-    private boolean disponibilidade = true;
+    private boolean disponibilidade = false;
 
 }
