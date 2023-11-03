@@ -1001,11 +1001,11 @@ public class PedidoControllerTests {
             Set<Entregador> entregadores = new HashSet<>();
             entregadores.add(entregador);
             estabelecimento.setEntregadoresDisponiveis(entregadores);
-            entregador.setDisponibilidade(true);
+            //entregador.setDisponibilidade(true);
 
             // Act
             String responseJsonString = driver.perform(
-                            put(URI_PEDIDOS + "/" + pedido.getId() + "/" + "/associar-pedido-entregador/")
+                            put(URI_PEDIDOS + "/" + pedido.getId() + "/" + "associar-pedido-entregador/")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .param("estabelecimentoId", estabelecimento.getId().toString())
                                     .param("estabelecimentoCodigoAcesso",

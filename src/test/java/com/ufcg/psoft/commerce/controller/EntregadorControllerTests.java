@@ -189,6 +189,7 @@ public class EntregadorControllerTests {
                     () -> assertEquals(entregadorPostPutRequestDTO.getTipoVeiculo(), resultado.getTipoVeiculo())
             );
         }
+
         @Test
         @DisplayName("Quando criamos um entregador com codigo de acesso contendo letras")
         void quandoCriamosEntregadorComCodigoAcessoComLetras() throws Exception {
@@ -232,6 +233,7 @@ public class EntregadorControllerTests {
                     () -> assertEquals("O código de acesso deve conter exatamente 6 dígitos numericos", resultado.getErrors().get(0))
             );
         }
+
         @Test
         @DisplayName("Quando criamos um entregador com codigo de acesso maior que 6 digitos")
         void quandoCriamosEntregadorComCodigoAcessoMaiorQue6Digitos() throws Exception {
@@ -689,90 +691,91 @@ public class EntregadorControllerTests {
             assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
         }
     }
+
+    @Nested
+    @DisplayName("Conjunto de casos de alteração de disponibilidade do entregador")
+    class EntregadorDefinirDisponibilidade {
+
+        @Test
+        @DisplayName("Quando alteramos a disponibilidade do entregador para disponível")
+        void quandoAlteramosDisponibilidadeParaDisponivel() throws Exception {
+            // Arrange
+
+            // Act
+            String responseJsonString = driver.perform(patch(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", entregador.getCodigoAcesso())
+                            .param("disponibilidade", "true")
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
+
+            // Assert
+        }
+
+        @Test
+        @DisplayName("Quando alteramos a disponibilidade do entregador para indisponível")
+        void quandoAlteramosDisponibilidadeParaIndisponivel() throws Exception {
+            // Arrange
+
+            // Act
+            String responseJsonString = driver.perform(patch(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", entregador.getCodigoAcesso())
+                            .param("disponibilidade", "false")
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
+
+            // Assert
+        }
+
+        @Test
+        @DisplayName("Quando alteramos a disponibilidade de um entregador inexistente")
+        void quandoAlteramosDisponibilidadeDeEntregadorInexistente() throws JsonProcessingException, UnsupportedEncodingException, Exception {
+            // Arrange
+
+            // Act
+            String responseJsonString = driver.perform(patch(URI_ENTREGADORES + "/" + 999999 + "/disponibilidade")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", entregador.getCodigoAcesso())
+                            .param("disponibilidade", "true")
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            // Assert
+            assertEquals("Entregador não cadastrado", resultado.getMessage());
+        }
+
+        @Test
+        @DisplayName("Quando alteramos a disponibilidade de um entregador passando codigo de acesso inválido")
+        void quandoAlteramosDisponibilidadeDeEntregadorComCodigoAcessoInvalido() throws Exception {
+            // Arrange
+
+            // Act
+            String responseJsonString = driver.perform(patch(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", "999999")
+                            .param("disponibilidade", "true")
+                            .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
+
+            // Assert
+            assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
+        }
+    }
 }
-//     @Nested
-//     @DisplayName("Conjunto de casos de alteração de disponibilidade do entregador")
-//     class EntregadorDefinirDisponibilidade {
-
-//         @Test
-//         @DisplayName("Quando alteramos a disponibilidade do entregador para disponível")
-//         void quandoAlteramosDisponibilidadeParaDisponivel() throws Exception {
-//             // Arrange
-
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcesso", entregador.getCodigoAcesso())
-//                             .param("disponibilidade", "true")
-//                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-
-//             EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
-
-//             // Assert
-//         }
-
-//         @Test
-//         @DisplayName("Quando alteramos a disponibilidade do entregador para indisponível")
-//         void quandoAlteramosDisponibilidadeParaIndisponivel() throws Exception {
-//             // Arrange
-
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcesso", entregador.getCodigoAcesso())
-//                             .param("disponibilidade", "false")
-//                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
-//                     .andExpect(status().isOk())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-
-//             EntregadorResponseDTO resultado = objectMapper.readValue(responseJsonString, EntregadorResponseDTO.EntregadorResponseDTOBuilder.class).build();
-
-//             // Assert
-//         }
-
-//         @Test
-//         @DisplayName("Quando alteramos a disponibilidade de um entregador inexistente")
-//         void quandoAlteramosDisponibilidadeDeEntregadorInexistente() throws JsonProcessingException, UnsupportedEncodingException, Exception {
-//             // Arrange
-
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/" + 999999 + "/disponibilidade")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcesso", entregador.getCodigoAcesso())
-//                             .param("disponibilidade", "true")
-//                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
-//                     .andExpect(status().isBadRequest())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-
-//             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-//             // Assert
-//             assertEquals("O entregador consultado nao existe!", resultado.getMessage());
-//         }
-
-//         @Test
-//         @DisplayName("Quando alteramos a disponibilidade de um entregador passando codigo de acesso inválido")
-//         void quandoAlteramosDisponibilidadeDeEntregadorComCodigoAcessoInvalido() throws Exception {
-//             // Arrange
-
-//             // Act
-//             String responseJsonString = driver.perform(put(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
-//                             .contentType(MediaType.APPLICATION_JSON)
-//                             .param("codigoAcesso", "999999")
-//                             .param("disponibilidade", "true")
-//                             .content(objectMapper.writeValueAsString(entregadorPostPutRequestDTO)))
-//                     .andExpect(status().isBadRequest())
-//                     .andDo(print())
-//                     .andReturn().getResponse().getContentAsString();
-
-//             CustomErrorType resultado = objectMapper.readValue(responseJsonString, CustomErrorType.class);
-
-//             // Assert
-//             assertEquals("Codigo de acesso invalido!", resultado.getMessage());
-//         }
-//     }

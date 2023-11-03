@@ -60,6 +60,16 @@ public class EntregadorController {
         , idEntregador, codigoAcesso));
     }
 
+    @PatchMapping("{idEntregador}/disponibilidade")
+    public ResponseEntity<?> atualizaDisponibilidade(
+            @PathVariable("idEntregador") Long idEntregador,
+            @RequestParam("codigoAcesso") String codigoAcesso,
+            @RequestParam("disponibilidade") Boolean disponibilidade
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(entregadorAtualizarService.atualizaDisponibilidade(idEntregador,codigoAcesso,disponibilidade));
+    }
+
     @DeleteMapping("{idEntregador}")
     public ResponseEntity<?> deletaEntregador(
             @PathVariable("idEntregador") Long idEntregador,
