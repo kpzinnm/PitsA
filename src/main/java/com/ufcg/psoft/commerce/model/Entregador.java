@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -47,4 +49,12 @@ public class Entregador {
     @Builder.Default
     private boolean disponibilidade = false;
 
+    @JsonProperty("horarioDisponibilidade")
+    @Column(name = "date_horario_disponibilidade")
+    private LocalDateTime horarioDisponibilidade;
+
+    public void setDisponibilidade(boolean disponibilidade) {
+        this.disponibilidade = disponibilidade;
+        if (this.disponibilidade) this.horarioDisponibilidade = LocalDateTime.now();
+    }
 }

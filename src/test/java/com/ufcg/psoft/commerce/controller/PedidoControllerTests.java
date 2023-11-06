@@ -11,6 +11,8 @@ import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.repository.*;
+import com.ufcg.psoft.commerce.services.associacao.model.*;
+import com.ufcg.psoft.commerce.services.model.*;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,6 +125,7 @@ public class PedidoControllerTests {
                 .pizzasGrandes(List.of())
                 .statusPagamento(false)
                 .status("Pedido recebido")
+                .aguardandoAssociarEntregador(true)
                 .build();
         pedido1 = Pedido.builder()
                 .preco(new BigDecimal(35.0))
@@ -134,6 +137,7 @@ public class PedidoControllerTests {
                 .pizzasGrandes(List.of(pizzaGrande))
                 .statusPagamento(false)
                 .status("Pedido recebido")
+                .aguardandoAssociarEntregador(true)
                 .build();
         pedidoPutRequestDTO = PedidoPutRequestDTO.builder()
                 .status("Pedido em rota")

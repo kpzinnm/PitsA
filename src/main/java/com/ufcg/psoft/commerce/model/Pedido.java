@@ -60,6 +60,10 @@ public class Pedido {
     @Column(nullable = false, name = "desc_status")
     private String status;
 
+    @JsonProperty("aguardandoAssociarEntregador")
+    @Column(nullable = false, name = "bl_aguardando_associar_entregador")
+    private boolean aguardandoAssociarEntregador;
+
     public boolean getStatusPagamento() { return this.statusPagamento; }
 
 

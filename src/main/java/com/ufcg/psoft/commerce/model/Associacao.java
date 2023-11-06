@@ -21,7 +21,7 @@ public class Associacao {
     private Long id;
 
     @JsonProperty("entregadorId")
-    @Column(name = "fk_id_associacao", nullable = false)
+    @Column(name = "fk_id_entregador_id", nullable = false)
     private Long entregadorId;
 
     @JsonProperty("estabelecimentoId")

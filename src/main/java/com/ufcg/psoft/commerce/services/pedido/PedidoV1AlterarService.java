@@ -13,15 +13,20 @@ import com.ufcg.psoft.commerce.model.Entregador;
 import com.ufcg.psoft.commerce.model.Estabelecimento;
 import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.PedidoRepository;
+import com.ufcg.psoft.commerce.services.associacao.AssociacaoPegarService;
 import com.ufcg.psoft.commerce.services.cliente.ClienteGetByIdService;
 import com.ufcg.psoft.commerce.services.cliente.ClienteValidaCodigoAcessoService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorAtualizarService;
+import com.ufcg.psoft.commerce.services.entregador.EntregadorPegarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoPegarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +36,8 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
     @Autowired
     private ClienteGetByIdService clienteGetByIdService;
 
@@ -54,6 +61,15 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
 
     @Autowired
     private PedidoGetByEstabelecimentoService pedidoGetByEstabelecimentoService;
+
+    @Autowired
+    private AssociacaoPegarService associacaoPegarService;
+
+    @Autowired
+    private EntregadorPegarService entregadorPegarService;
+
+    @Autowired
+    private EntregadorAtualizarService entregadorAtualizarService;
 
     @Override
     public Pedido alterarPedido(
@@ -87,13 +103,19 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
             estabelecimentoValid.validar(estabelecimentoId, estabelecimentoCodigoAcesso);
 
             if (Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())) {
-                List<Entregador> entregadores = estabelecimento.getEntregadoresDisponiveis().stream()
-                        .collect(Collectors.toList());
+                Set<Entregador> entregadores = this.pegaEntregadoresDisponiveisDoEstabelecimento(estabelecimentoId);
+                Entregador entregador = this.selecionarEntregadorMaisAntigo(
+                        entregadores
+                );
 
-                if (entregadores.size() > 0) {
+                if (entregador != null) {
 
-                    pedidoFromDB.setEntregadorId(entregadores.get(0).getId());
+                    pedidoFromDB.setEntregadorId(entregador.getId());
                     pedidoFromDB.setStatus(pedidoPostPutRequestDTO.getStatus());
+                    pedidoFromDB.setAguardandoAssociarEntregador(false);
+                    entregadorAtualizarService.atualizaDisponibilidade(entregador.getId(),
+                            entregador.getCodigoAcesso(),
+                            false);
 
                     pedidoRepository.flush();
 
@@ -105,7 +127,7 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                             .status(pedidoFromDB.getStatus())
                             .build();
                     ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
-                    pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregadores.get(0));
+                    pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregador);
                     return response;
                 } else {
                     throw new EstabelecimentoSemEntregadorNoMomentoException();
@@ -130,6 +152,7 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
 
         if (Objects.equals(pedido.getStatus(), "Pedido em preparo")) {
             pedido.setStatus("Pedido pronto");
+            this.associacaoEntregadorAutomatica(pedido);
             pedidoRepository.flush();
             return PedidoResponseDTO.builder()
                     .id(pedido.getId())
@@ -141,5 +164,51 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
         } else {
             throw new PedidoNotPreparedException();
         }
+    }
+
+    private void associacaoEntregadorAutomatica(Pedido pedido) {
+        Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(
+                pedido.getEstabelecimentoId()
+        );
+
+        Set<Entregador> entregadores = pegaEntregadoresDisponiveisDoEstabelecimento(pedido.getEstabelecimentoId());
+        PedidoPutRequestDTO pedidoPutRequestDTO = modelMapper.map(pedido, PedidoPutRequestDTO.class);
+
+        if (!entregadores.isEmpty()) {
+            pedidoPutRequestDTO.setStatus("Pedido em rota");
+            this.associarEntregador(
+                    pedido.getId(),
+                    pedido.getEstabelecimentoId(),
+                    estabelecimento.getCodigoAcesso(),
+                    pedidoPutRequestDTO);
+        }
+    }
+
+    private Entregador selecionarEntregadorMaisAntigo(Set<Entregador> entregadores) {
+        Entregador entregadorMaisAntigo = null;
+        LocalDateTime horarioMaisAntigo = null;
+
+        for (Entregador entregador : entregadores) {
+            LocalDateTime horarioDisponibilidade = entregador.getHorarioDisponibilidade();
+
+            if (horarioMaisAntigo == null || horarioDisponibilidade.isBefore(horarioMaisAntigo)) {
+                horarioMaisAntigo = horarioDisponibilidade;
+                entregadorMaisAntigo = entregador;
+            }
+        }
+
+        return entregadorMaisAntigo;
+    }
+
+    private Set<Entregador> pegaEntregadoresDisponiveisDoEstabelecimento(Long estabelecimentoId) {
+        Set<Long> entregadorIds = associacaoPegarService.pegarEntregadorIdsDoEstabelecimento(estabelecimentoId);
+        Set<Entregador> entregadoresDisponiveis = new HashSet<>();
+        for (Long id: entregadorIds) {
+            Entregador entregadorFromDb = entregadorPegarService.pegaEntregadorObjeto(id);
+            if (entregadorFromDb.isDisponibilidade()) {
+                entregadoresDisponiveis.add(entregadorFromDb);
+            }
+        }
+        return entregadoresDisponiveis;
     }
 }
