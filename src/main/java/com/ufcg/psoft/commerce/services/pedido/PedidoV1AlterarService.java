@@ -16,7 +16,6 @@ import com.ufcg.psoft.commerce.repository.PedidoRepository;
 import com.ufcg.psoft.commerce.services.associacao.AssociacaoPegarService;
 import com.ufcg.psoft.commerce.services.cliente.ClienteGetByIdService;
 import com.ufcg.psoft.commerce.services.cliente.ClienteValidaCodigoAcessoService;
-import com.ufcg.psoft.commerce.services.entregador.EntregadorAtualizarService;
 import com.ufcg.psoft.commerce.services.entregador.EntregadorPegarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoPegarService;
 import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoValidar;
@@ -68,9 +67,6 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
     @Autowired
     private EntregadorPegarService entregadorPegarService;
 
-    @Autowired
-    private EntregadorAtualizarService entregadorAtualizarService;
-
     @Override
     public Pedido alterarPedido(
             String clienteCodigoAcesso,
@@ -113,9 +109,6 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                     pedidoFromDB.setEntregadorId(entregador.getId());
                     pedidoFromDB.setStatus(pedidoPostPutRequestDTO.getStatus());
                     pedidoFromDB.setAguardandoAssociarEntregador(false);
-                    entregadorAtualizarService.atualizaDisponibilidade(entregador.getId(),
-                            entregador.getCodigoAcesso(),
-                            false);
 
                     pedidoRepository.flush();
 

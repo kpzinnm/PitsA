@@ -6,8 +6,6 @@ import com.ufcg.psoft.commerce.dto.pizza.PizzaPostPutDTO;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.repository.PizzaGrandeRepository;
 import com.ufcg.psoft.commerce.repository.PizzaMediaRepository;
-import com.ufcg.psoft.commerce.services.associacao.model.*;
-import com.ufcg.psoft.commerce.services.model.*;
 import com.ufcg.psoft.commerce.services.sabor.SaborGetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -11,8 +11,6 @@ import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
 import com.ufcg.psoft.commerce.model.*;
 import com.ufcg.psoft.commerce.repository.*;
-import com.ufcg.psoft.commerce.services.associacao.model.*;
-import com.ufcg.psoft.commerce.services.model.*;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,11 +59,15 @@ public class PedidoControllerTests {
     PizzaGrandeRepository pizzaGrandeRepository;
 
     @Autowired
+    AssociacaoRepository associacaoRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     ObjectMapper objectMapper = new ObjectMapper();
     Cliente cliente;
     Entregador entregador;
+    Associacao associacao;
     Sabor sabor1;
     Sabor sabor2;
     PizzaMedia pizzaMedia;
@@ -109,6 +111,13 @@ public class PedidoControllerTests {
                 .tipoVeiculo("Moto")
                 .codigoAcesso("101010")
                 .build());
+        associacao = associacaoRepository.save(
+                Associacao.builder()
+                        .estabelecimentoId(estabelecimento.getId())
+                        .entregadorId(entregador.getId())
+                        .status(true)
+                .build()
+        );
         pizzaMedia = PizzaMedia.builder()
                 .sabor(sabor1)
                 .build();
@@ -1000,12 +1009,10 @@ public class PedidoControllerTests {
         void quandoEstabelecimentoAssociaPedidoEntregador() throws Exception {
             // Arrange
             pedido.setStatus("Pedido pronto");
-            pedidoRepository.save(pedido);
             entregador.setStatusAprovacao(true);
-            Set<Entregador> entregadores = new HashSet<>();
-            entregadores.add(entregador);
-            estabelecimento.setEntregadoresDisponiveis(entregadores);
-            //entregador.setDisponibilidade(true);
+            entregador.setDisponibilidade(true);
+            entregadorRepository.flush();
+            pedidoRepository.save(pedido);
 
             // Act
             String responseJsonString = driver.perform(
