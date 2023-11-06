@@ -1,6 +1,7 @@
 package com.ufcg.psoft.commerce.services.pedido;
 
 import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
+import com.ufcg.psoft.commerce.event.NotificaClienteStatusEntregadorEvent;
 import com.ufcg.psoft.commerce.event.NotificaClienteStatusPedidoEvent;
 
 import com.ufcg.psoft.commerce.model.Entregador;
@@ -25,6 +26,11 @@ public class PedidoV1NotificaStatusEventManager implements PedidoNotificaStatusE
     @Override
     public void notificaClienteStatusEntrega(ClienteGetDTO cliente, Entregador entregador) {
         publisher.publishEvent(new NotificaClienteStatusPedidoEvent(this, cliente, entregador));
+    }
+
+    @Override
+    public void notificaClienteEntregadorNaoDisponivel(ClienteGetDTO cliente) {
+        publisher.publishEvent(new NotificaClienteStatusEntregadorEvent(this, cliente));
     }
 
 }

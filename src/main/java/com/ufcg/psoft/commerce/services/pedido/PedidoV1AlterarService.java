@@ -89,6 +89,8 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
             if (Objects.equals(estabelecimento.getId(), pedidoFromDB.getEstabelecimentoId())) {
                 List<Entregador> entregadores = estabelecimento.getEntregadoresDisponiveis().stream()
                         .collect(Collectors.toList());
+                
+                ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
 
                 if (entregadores.size() > 0) {
 
@@ -104,10 +106,11 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                             .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
                             .status(pedidoFromDB.getStatus())
                             .build();
-                    ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
+                    
                     pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregadores.get(0));
                     return response;
                 } else {
+                    pedidoNotificaStatusEventManager.notificaClienteEntregadorNaoDisponivel(cliente);
                     throw new EstabelecimentoSemEntregadorNoMomentoException();
                 }
 
