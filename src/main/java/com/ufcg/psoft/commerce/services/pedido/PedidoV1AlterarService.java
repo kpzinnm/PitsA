@@ -123,6 +123,7 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                     pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregador);
                     return response;
                 } else {
+                    pedidoNotificaStatusEventManager.notificaClienteEntregadorNaoDisponivel(cliente);
                     throw new EstabelecimentoSemEntregadorNoMomentoException();
                 }
 

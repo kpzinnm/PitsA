@@ -9,4 +9,5 @@ import org.springframework.stereotype.Service;
 public interface PedidoNotificaStatusEventManager {
     public void notificaEstabelecimentoStatusEntrega(Pedido pedido);
     public void notificaClienteStatusEntrega(ClienteGetDTO cliente, Entregador entregador);
+    public void notificaClienteEntregadorNaoDisponivel(ClienteGetDTO cliente);
 }
