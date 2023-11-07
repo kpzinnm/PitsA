@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -1118,6 +1119,73 @@ public class PedidoControllerTests {
             // Assert
             assertEquals("O pedido não está na etapa Pedido em rota", resultado.getMessage());
         }
+
+        @Test
+        @DisplayName("Quando um pedido fica pronto e tem entregador disponível, ele é atribuído automaticamente e o status é atualizado")
+        void quandoPedidoFicaProntoComEntregadorDisponivel() throws Exception {
+            // Arrange
+            entregador.setDisponibilidade(true);
+            entregadorRepository.save(entregador);
+            Entregador entregador2 = entregadorRepository.save(Entregador.builder()
+                    .nome("FeiJoãozinho")
+                    .placaVeiculo("ABC-1234")
+                    .corVeiculo("Azul")
+                    .tipoVeiculo("Moto")
+                    .codigoAcesso("103010")
+                    .disponibilidade(true)
+                    .statusAprovacao(true)
+                    .horarioDisponibilidade(LocalDateTime.now())
+                    .build());
+            Entregador entregador3 = entregadorRepository.save(Entregador.builder()
+                    .nome("FeiJoãozinho")
+                    .placaVeiculo("ABC-1234")
+                    .corVeiculo("Azul")
+                    .tipoVeiculo("Moto")
+                    .codigoAcesso("103010")
+                    .disponibilidade(true)
+                    .statusAprovacao(true)
+                    .horarioDisponibilidade(LocalDateTime.now())
+                    .build());
+            associacaoRepository.save(
+                    Associacao.builder()
+                            .estabelecimentoId(estabelecimento.getId())
+                            .entregadorId(entregador2.getId())
+                            .status(true)
+                            .build()
+            );
+            associacaoRepository.save(
+                    Associacao.builder()
+                            .estabelecimentoId(estabelecimento.getId())
+                            .entregadorId(entregador3.getId())
+                            .status(true)
+                            .build()
+            );
+            pedido.setStatus("Pedido em preparo");
+            pedidoRepository.save(pedido);
+
+            // Act
+            String responseJsonString = driver.perform(
+                            put(URI_PEDIDOS + "/pedido-pronto")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("pedidoId", pedido.getId().toString())
+                                    .param("estabelecimentoId", estabelecimento.getId().toString())
+                                    .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
+                    )
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString,
+                    PedidoResponseDTO.class);
+
+            assertAll(
+                    () -> assertEquals(entregador.getId(), resultado.getEntregadorId()),
+                    () -> assertFalse(resultado.isAguardandoAssociarEntregador()),
+                    () -> assertEquals("Pedido em rota", resultado.getStatus())
+            );
+        }
+
+
     }
 
      // Pedro Vinícius
@@ -1282,51 +1350,6 @@ public class PedidoControllerTests {
              assertEquals("O pedido não está na etapa pedido recebido", resultado.getMessage());
          }
 
-         @Test
-         @DisplayName("Quando um pedido fica pronto e tem entregador disponível, ele é atribuído automaticamente e o status é atualizado")
-         void quandoPedidoFicaProntoComEntregadorDisponivel() throws Exception {
-             // Arrange
-             pedido.setStatus("Pedido Pronto");
-             pedidoRepository.save(pedido);
-             entregador.setStatusAprovacao(true);
-             Set<Entregador> entregadores = new HashSet<>();
-             entregadores.add(entregador);
-             estabelecimento.setEntregadoresDisponiveis(entregadores);
 
-             // Act
-             driver.perform(
-                             put(URI_PEDIDOS + "/pedido-pronto")
-                                     .contentType(MediaType.APPLICATION_JSON)
-                                     .param("pedidoId", pedido.getId().toString())
-                                     .param("estabelecimentoId", estabelecimento.getId().toString())
-                                     .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
-                     )
-                     .andExpect(status().isOk())
-                     .andExpect((ResultMatcher) jsonPath("$.status").value("Pedido em rota"))
-                     .andExpect((ResultMatcher) jsonPath("$.entregadorId").value(entregador.getId()));
-         }
      }
-
-    @Test
-    @DisplayName("Quando um entregador fica disponível, um pedido pronto é atribuído automaticamente")
-    void quandoEntregadorFicaDisponivelPedidoAtribuidoAutomaticamente() throws Exception {
-        // Arrange
-        pedido.setStatus("Pedido Pronto");
-        pedidoRepository.save(pedido);
-        entregador.setStatusAprovacao(true);
-        entregador.setDisponibilidade(true);
-
-        // Act
-        driver.perform(
-                        put(URI_PEDIDOS + "/atribuir-pedido-automaticamente")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .param("entregadorId", entregador.getId().toString())
-                                .param("estabelecimentoId", estabelecimento.getId().toString())
-                                .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
-                )
-                .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.status").value("Pedido em rota"))
-                .andExpect((ResultMatcher) jsonPath("$.entregadorId").value(entregador.getId()));
-    }
-
 }

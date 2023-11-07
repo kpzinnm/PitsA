@@ -94,6 +94,7 @@ public class EntregadorV1AtualzarService implements EntregadorAtualizarService{
                     Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(id);
                     Pedido primeiroPedido = listaPedidos.get(0);
                     PedidoPutRequestDTO pedidoDTO = modelMapper.map(primeiroPedido, PedidoPutRequestDTO.class);
+                    pedidoDTO.setStatus("Pedido em rota");
                     pedidoAlterarService.associarEntregador(
                             primeiroPedido.getId(),
                             primeiroPedido.getEstabelecimentoId(),
