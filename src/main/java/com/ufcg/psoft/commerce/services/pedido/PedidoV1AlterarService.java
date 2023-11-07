@@ -103,6 +103,7 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                 Entregador entregador = this.selecionarEntregadorMaisAntigo(
                         entregadores
                 );
+                ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
 
                 if (entregador != null) {
 
@@ -119,7 +120,6 @@ public class PedidoV1AlterarService implements PedidoAlterarService {
                             .estabelecimentoId(pedidoFromDB.getEstabelecimentoId())
                             .status(pedidoFromDB.getStatus())
                             .build();
-                    ClienteGetDTO cliente = clienteGetByIdService.getCliente(pedidoFromDB.getClienteId());
                     pedidoNotificaStatusEventManager.notificaClienteStatusEntrega(cliente, entregador);
                     return response;
                 } else {

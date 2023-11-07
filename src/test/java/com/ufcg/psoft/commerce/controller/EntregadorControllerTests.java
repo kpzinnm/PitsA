@@ -75,6 +75,9 @@ public class EntregadorControllerTests {
     @Autowired
     SaborRepository saborRepository;
 
+    @Autowired
+    PizzaMediaRepository pizzaMediaRepository;
+
     Cliente cliente;
 
     Pedido pedido;
@@ -869,6 +872,13 @@ public class EntregadorControllerTests {
                     () -> assertFalse(novoPedido.isAguardandoAssociarEntregador()),
                     () -> assertEquals("Pedido em rota", novoPedido.getStatus())
             );
+
+            clienteRepository.deleteAll();
+            estabelecimentoRepository.deleteAll();
+            pedidoRepository.deleteAll();
+            pizzaMediaRepository.deleteAll();
+            saborRepository.deleteAll();
+            entregadorRepository.deleteAll();
         }
     }
 }
