@@ -18,15 +18,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,11 +62,15 @@ public class PedidoControllerTests {
     PizzaGrandeRepository pizzaGrandeRepository;
 
     @Autowired
+    AssociacaoRepository associacaoRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     ObjectMapper objectMapper = new ObjectMapper();
     Cliente cliente;
     Entregador entregador;
+    Associacao associacao;
     Sabor sabor1;
     Sabor sabor2;
     PizzaMedia pizzaMedia;
@@ -107,6 +114,13 @@ public class PedidoControllerTests {
                 .tipoVeiculo("Moto")
                 .codigoAcesso("101010")
                 .build());
+        associacao = associacaoRepository.save(
+                Associacao.builder()
+                        .estabelecimentoId(estabelecimento.getId())
+                        .entregadorId(entregador.getId())
+                        .status(true)
+                .build()
+        );
         pizzaMedia = PizzaMedia.builder()
                 .sabor(sabor1)
                 .build();
@@ -123,6 +137,7 @@ public class PedidoControllerTests {
                 .pizzasGrandes(List.of())
                 .statusPagamento(false)
                 .status("Pedido recebido")
+                .aguardandoAssociarEntregador(true)
                 .build();
         pedido1 = Pedido.builder()
                 .preco(new BigDecimal(35.0))
@@ -134,6 +149,7 @@ public class PedidoControllerTests {
                 .pizzasGrandes(List.of(pizzaGrande))
                 .statusPagamento(false)
                 .status("Pedido recebido")
+                .aguardandoAssociarEntregador(true)
                 .build();
         pedidoPutRequestDTO = PedidoPutRequestDTO.builder()
                 .status("Pedido em rota")
@@ -996,12 +1012,10 @@ public class PedidoControllerTests {
         void quandoEstabelecimentoAssociaPedidoEntregador() throws Exception {
             // Arrange
             pedido.setStatus("Pedido pronto");
-            pedidoRepository.save(pedido);
             entregador.setStatusAprovacao(true);
-            Set<Entregador> entregadores = new HashSet<>();
-            entregadores.add(entregador);
-            estabelecimento.setEntregadoresDisponiveis(entregadores);
-            //entregador.setDisponibilidade(true);
+            entregador.setDisponibilidade(true);
+            entregadorRepository.flush();
+            pedidoRepository.save(pedido);
 
             // Act
             String responseJsonString = driver.perform(
@@ -1105,6 +1119,73 @@ public class PedidoControllerTests {
             // Assert
             assertEquals("O pedido não está na etapa Pedido em rota", resultado.getMessage());
         }
+
+        @Test
+        @DisplayName("Quando um pedido fica pronto e tem entregador disponível, ele é atribuído automaticamente e o status é atualizado")
+        void quandoPedidoFicaProntoComEntregadorDisponivel() throws Exception {
+            // Arrange
+            entregador.setDisponibilidade(true);
+            entregadorRepository.save(entregador);
+            Entregador entregador2 = entregadorRepository.save(Entregador.builder()
+                    .nome("FeiJoãozinho")
+                    .placaVeiculo("ABC-1234")
+                    .corVeiculo("Azul")
+                    .tipoVeiculo("Moto")
+                    .codigoAcesso("103010")
+                    .disponibilidade(true)
+                    .statusAprovacao(true)
+                    .horarioDisponibilidade(LocalDateTime.now())
+                    .build());
+            Entregador entregador3 = entregadorRepository.save(Entregador.builder()
+                    .nome("FeiJoãozinho")
+                    .placaVeiculo("ABC-1234")
+                    .corVeiculo("Azul")
+                    .tipoVeiculo("Moto")
+                    .codigoAcesso("103010")
+                    .disponibilidade(true)
+                    .statusAprovacao(true)
+                    .horarioDisponibilidade(LocalDateTime.now())
+                    .build());
+            associacaoRepository.save(
+                    Associacao.builder()
+                            .estabelecimentoId(estabelecimento.getId())
+                            .entregadorId(entregador2.getId())
+                            .status(true)
+                            .build()
+            );
+            associacaoRepository.save(
+                    Associacao.builder()
+                            .estabelecimentoId(estabelecimento.getId())
+                            .entregadorId(entregador3.getId())
+                            .status(true)
+                            .build()
+            );
+            pedido.setStatus("Pedido em preparo");
+            pedidoRepository.save(pedido);
+
+            // Act
+            String responseJsonString = driver.perform(
+                            put(URI_PEDIDOS + "/pedido-pronto")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("pedidoId", pedido.getId().toString())
+                                    .param("estabelecimentoId", estabelecimento.getId().toString())
+                                    .param("estabelecimentoCodigoAcesso", estabelecimento.getCodigoAcesso())
+                    )
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            PedidoResponseDTO resultado = objectMapper.readValue(responseJsonString,
+                    PedidoResponseDTO.class);
+
+            assertAll(
+                    () -> assertEquals(entregador.getId(), resultado.getEntregadorId()),
+                    () -> assertFalse(resultado.isAguardandoAssociarEntregador()),
+                    () -> assertEquals("Pedido em rota", resultado.getStatus())
+            );
+        }
+
+
     }
 
      // Pedro Vinícius
@@ -1268,5 +1349,7 @@ public class PedidoControllerTests {
              // Assert
              assertEquals("O pedido não está na etapa pedido recebido", resultado.getMessage());
          }
+
+
      }
 }

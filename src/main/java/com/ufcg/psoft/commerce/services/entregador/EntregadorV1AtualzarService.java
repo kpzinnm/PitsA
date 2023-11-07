@@ -2,12 +2,23 @@ package com.ufcg.psoft.commerce.services.entregador;
 
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.pedido.PedidoPutRequestDTO;
 import com.ufcg.psoft.commerce.exception.EntregadorNaoCadastradoException;
 import com.ufcg.psoft.commerce.model.Entregador;
+import com.ufcg.psoft.commerce.model.Estabelecimento;
+import com.ufcg.psoft.commerce.model.Pedido;
 import com.ufcg.psoft.commerce.repository.EntregadorRepository;
+import com.ufcg.psoft.commerce.services.associacao.AssociacaoPegarService;
+import com.ufcg.psoft.commerce.services.estabelecimento.EstabelecimentoPegarService;
+import com.ufcg.psoft.commerce.services.pedido.PedidoAlterarService;
+import com.ufcg.psoft.commerce.services.pedido.PedidoGetAllByEstabelecimentoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class EntregadorV1AtualzarService implements EntregadorAtualizarService{
@@ -19,6 +30,18 @@ public class EntregadorV1AtualzarService implements EntregadorAtualizarService{
     EntregadorValidaCodigoAcessoService entregadorValidaCodigoAcessoService;
     @Autowired
     EntregadorVerificaTipoVeiculo entregadorVerificaTipoVeiculo;
+
+    @Autowired
+    AssociacaoPegarService associacaoPegarService;
+
+    @Autowired
+    PedidoGetAllByEstabelecimentoService pedidoGetAllByEstabelecimentoService;
+
+    @Autowired
+    PedidoAlterarService pedidoAlterarService;
+
+    @Autowired
+    EstabelecimentoPegarService estabelecimentoPegarService;
 
     @Override
     public EntregadorGetRequestDTO atualizaEntregador(EntregadorPostPutRequestDTO entregadorPostPutRequestDTO,Long idEntregador, String codigoAcesso) {
@@ -52,9 +75,35 @@ public class EntregadorV1AtualzarService implements EntregadorAtualizarService{
 
             entregador.setDisponibilidade(diponibilidade);
 
+            atribuiAutomaticamenteSeHaPedidoPronto(entregador);
+
+            entregadorRepository.flush();
+
             return modelMapper.map(entregador, EntregadorGetRequestDTO.class);
         }
         throw new EntregadorNaoCadastradoException();
 
+    }
+
+    private void atribuiAutomaticamenteSeHaPedidoPronto(Entregador entregador) {
+        Set<Long> estabelecimentosIds = associacaoPegarService.pegarEstabelecimentoIdsDoEntregador(entregador.getId());
+        for (Long id: estabelecimentosIds) {
+            List<Pedido> listaPedidos = pedidoGetAllByEstabelecimentoService.listarPedidosEstabelecimento(id);
+            for (Pedido pedido: listaPedidos) {
+                if (pedido.getStatus().equals("Pedido pronto") && pedido.isAguardandoAssociarEntregador()) {
+                    Estabelecimento estabelecimento = estabelecimentoPegarService.pegarEstabelecimento(id);
+                    Pedido primeiroPedido = listaPedidos.get(0);
+                    PedidoPutRequestDTO pedidoDTO = modelMapper.map(primeiroPedido, PedidoPutRequestDTO.class);
+                    pedidoDTO.setStatus("Pedido em rota");
+                    pedidoAlterarService.associarEntregador(
+                            primeiroPedido.getId(),
+                            primeiroPedido.getEstabelecimentoId(),
+                            estabelecimento.getCodigoAcesso(),
+                            pedidoDTO
+                    );
+                    return;
+                }
+            }
+        }
     }
 }

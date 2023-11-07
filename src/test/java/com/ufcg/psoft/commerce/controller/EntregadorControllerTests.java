@@ -8,8 +8,8 @@ import com.ufcg.psoft.commerce.dto.entregador.EntregadorGetRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorPostPutRequestDTO;
 import com.ufcg.psoft.commerce.dto.entregador.EntregadorResponseDTO;
 import com.ufcg.psoft.commerce.exception.CustomErrorType;
-import com.ufcg.psoft.commerce.model.Entregador;
-import com.ufcg.psoft.commerce.repository.EntregadorRepository;
+import com.ufcg.psoft.commerce.model.*;
+import com.ufcg.psoft.commerce.repository.*;
 import org.junit.jupiter.api.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +51,33 @@ public class EntregadorControllerTests {
     ObjectMapper objectMapper = new ObjectMapper();
 
     Entregador entregador;
+
+    Estabelecimento estabelecimento;
+
+    Associacao associacao;
+
+    Sabor sabor;
+
+    PizzaMedia pizzaMedia;
+
+    @Autowired
+    PedidoRepository pedidoRepository;
+
+    @Autowired
+    ClienteRepository clienteRepository;
+
+    @Autowired
+    EstabelecimentoRepository estabelecimentoRepository;
+
+    @Autowired
+    AssociacaoRepository associacaoRepository;
+
+    @Autowired
+    SaborRepository saborRepository;
+
+    Cliente cliente;
+
+    Pedido pedido;
 
     EntregadorPostPutRequestDTO entregadorPostPutRequestDTO;
 
@@ -776,6 +807,68 @@ public class EntregadorControllerTests {
 
             // Assert
             assertEquals("Codigo de acesso não correspode com o deste entregador!", resultado.getMessage());
+        }
+
+        @Test
+        @DisplayName("Quando um entregador fica disponível, um pedido pronto é atribuído automaticamente")
+        void quandoEntregadorFicaDisponivelPedidoAtribuidoAutomaticamente() throws Exception {
+            // Arrange
+            estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
+                    .codigoAcesso("654321")
+                    .build());
+            sabor = saborRepository.save(Sabor.builder()
+                    .nome("Sabor Um")
+                    .tipo("salgado")
+                    .precoM(new BigDecimal(10.0))
+                    .precoG(new BigDecimal(20.0))
+                    .disponivel(true)
+                    .build());
+            cliente = clienteRepository.save(Cliente.builder()
+                    .nome("Anton Ego")
+                    .endereco("Paris")
+                    .codigoAcesso("123456")
+                    .build());
+            associacao = associacaoRepository.save(
+                    Associacao.builder()
+                            .estabelecimentoId(estabelecimento.getId())
+                            .entregadorId(entregador.getId())
+                            .status(true)
+                            .build()
+            );
+            pizzaMedia = PizzaMedia.builder()
+                    .sabor(sabor)
+                    .build();
+            pedido = pedidoRepository.save(Pedido.builder()
+                    .preco(new BigDecimal(10.0))
+                    .enderecoEntrega("Casa 237")
+                    .clienteId(cliente.getId())
+                    .estabelecimentoId(estabelecimento.getId())
+                    .entregadorId(null)
+                    .pizzasMedias(List.of(pizzaMedia))
+                    .pizzasGrandes(List.of())
+                    .statusPagamento(true)
+                    .status("Pedido pronto")
+                    .aguardandoAssociarEntregador(true)
+                    .build());
+
+            // Act
+            driver.perform(
+                            patch(URI_ENTREGADORES + "/" + entregador.getId() + "/disponibilidade")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("entregadorId", entregador.getId().toString())
+                                    .param("codigoAcesso", entregador.getCodigoAcesso())
+                                    .param("disponibilidade", "true")
+                    )
+                    .andExpect(status().isOk())
+                    .andDo(print());
+
+            Pedido novoPedido = pedidoRepository.findById(pedido.getId()).get();
+
+            assertAll(
+                    () -> assertEquals(entregador.getId(), novoPedido.getEntregadorId()),
+                    () -> assertFalse(novoPedido.isAguardandoAssociarEntregador()),
+                    () -> assertEquals("Pedido em rota", novoPedido.getStatus())
+            );
         }
     }
 }

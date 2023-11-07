@@ -73,6 +73,7 @@ public class PedidoV1GerarService implements PedidoGerarService {
                 .pizzasGrandes(pizzasGrandes)
                 .statusPagamento(false)
                 .status("Pedido recebido")
+                .aguardandoAssociarEntregador(true)
                 .build();
     }
 

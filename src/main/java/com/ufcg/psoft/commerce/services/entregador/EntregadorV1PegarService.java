@@ -39,4 +39,14 @@ public class EntregadorV1PegarService implements EntregadorPegarService{
         }
         return entregadoresResponse;
     }
+
+    @Override
+    public Entregador pegaEntregadorObjeto(Long id) {
+        if(entregadorRepository.existsById(id)){
+            return entregadorRepository.findById(id).get();
+        }
+        else{
+            throw new EntregadorNaoCadastradoException();
+        }
+    }
 }

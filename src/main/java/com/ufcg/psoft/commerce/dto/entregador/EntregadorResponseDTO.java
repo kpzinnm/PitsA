@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,11 +33,11 @@ public class EntregadorResponseDTO {
     private String codigoAcesso;
 
     @JsonProperty("statusAprovacao")
-    @Builder.Default
-    private boolean statusAprovacao = false;
+    private boolean statusAprovacao;
 
     @JsonProperty("disponibilidade")
-    @Builder.Default
-    private boolean disponibilidade = true;
+    private boolean disponibilidade;
 
+    @JsonProperty("horarioDisponibilidade")
+    private LocalDateTime horarioDisponibilidade;
 }
