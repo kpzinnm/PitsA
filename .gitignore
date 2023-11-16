@@ -1,6 +1,11 @@
 # IntelliJ IDEA
 .idea/
 
+# VsCode
+.vscode/
+
 # Gradle
 .gradle/
 build/
+
+src/main/resources

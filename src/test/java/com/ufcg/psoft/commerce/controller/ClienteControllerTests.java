@@ -3,6 +3,18 @@ package com.ufcg.psoft.commerce.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ufcg.psoft.commerce.dto.cliente.ClienteGetDTO;
+import com.ufcg.psoft.commerce.dto.cliente.ClientePostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborPostPutRequestDTO;
+import com.ufcg.psoft.commerce.dto.sabores.SaborResponseDTO;
+import com.ufcg.psoft.commerce.exception.CustomErrorType;
+import com.ufcg.psoft.commerce.model.Cliente;
+import com.ufcg.psoft.commerce.model.Estabelecimento;
+import com.ufcg.psoft.commerce.model.Sabor;
+import com.ufcg.psoft.commerce.repository.ClienteRepository;
+import com.ufcg.psoft.commerce.repository.EstabelecimentoRepository;
+import com.ufcg.psoft.commerce.repository.SaborRepository;
+import com.ufcg.psoft.commerce.services.sabor.SaborCadastraService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,8 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -23,18 +35,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Testes do controlador de Clientes")
 public class ClienteControllerTests {
 
-    final String URI_CLIENTES = "/clientes";
+    final String URI_CLIENTES = "/api/v1/clientes";
 
     @Autowired
     MockMvc driver;
-
     @Autowired
     ClienteRepository clienteRepository;
-
+    @Autowired
+    EstabelecimentoRepository estabelecimentoRepository;
+    @Autowired
+    SaborCadastraService saborCadastraService;
+    @Autowired
+    SaborRepository saborRepository;
     ObjectMapper objectMapper = new ObjectMapper();
-
+    Estabelecimento estabelecimento;
+    Sabor sabor;
     Cliente cliente;
-
+    Cliente cliente2;
     ClientePostPutRequestDTO clientePostPutRequestDTO;
 
     @BeforeEach
@@ -47,6 +64,14 @@ public class ClienteControllerTests {
                 .codigoAcesso("123456")
                 .build()
         );
+
+        cliente2 = clienteRepository.save(Cliente.builder()
+                .nome("Cliente Dois dos Santos")
+                .endereco("Rua dos Testadores, 123")
+                .codigoAcesso("456789")
+                .build()
+        );
+
         clientePostPutRequestDTO = ClientePostPutRequestDTO.builder()
                 .nome(cliente.getNome())
                 .endereco(cliente.getEndereco())
@@ -78,7 +103,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertEquals("Cliente Um Alterado", resultado.getNome());
@@ -152,7 +177,9 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            ClienteResponseDTO resultado = objectMapper.readValue(responseJsonString, ClienteResponseDTO.ClienteResponseDTOBuilder.class).build();
+
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
+
 
             // Assert
             assertEquals("Endereco Alterado", resultado.getEndereco());
@@ -342,7 +369,7 @@ public class ClienteControllerTests {
 
             // Assert
             assertAll(
-                    () -> assertEquals(3, resultado.size())
+                    () -> assertEquals(4, resultado.size())
             );
         }
 
@@ -360,7 +387,8 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            ClienteResponseDTO resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {});
+            ClienteGetDTO resultado = objectMapper.readValue(responseJsonString, new TypeReference<>() {
+            });
 
             // Assert
             assertAll(
@@ -405,7 +433,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertAll(
@@ -430,7 +458,7 @@ public class ClienteControllerTests {
                     .andDo(print())
                     .andReturn().getResponse().getContentAsString();
 
-            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.ClienteBuilder.class).build();
+            Cliente resultado = objectMapper.readValue(responseJsonString, Cliente.class);
 
             // Assert
             assertAll(
@@ -552,27 +580,33 @@ public class ClienteControllerTests {
     @DisplayName("Conjunto de casos de demonstrar interesse em sabores")
     class ClienteDemonstrarInteresseEmSabores {
 
-        @Autowired
-        EstabelecimentoRepository estabelecimentoRepository;
-        @Autowired
-        SaborRepository saborRepository;
-
-        Estabelecimento estabelecimento;
-        Sabor sabor;
+        SaborPostPutRequestDTO saborPostPutRequestDTO;
 
         @BeforeEach
         void setUp() {
+            sabor = saborRepository.save(Sabor.builder()
+                    .nome("Sabor Um")
+                    .tipo("salgado")
+                    .precoM(new BigDecimal("10.0"))
+                    .precoG(new BigDecimal("20.0"))
+                    .disponivel(false)
+                    .build());
+
+            saborPostPutRequestDTO = SaborPostPutRequestDTO.builder()
+                    .nome(sabor.getNome())
+                    .tipo(sabor.getTipo())
+                    .precoM(sabor.getPrecoM())
+                    .precoG(sabor.getPrecoG())
+                    .disponivel(sabor.getDisponivel())
+                    .build();
+
             estabelecimento = estabelecimentoRepository.save(Estabelecimento.builder()
                     .codigoAcesso("654321")
                     .build()
             );
-            sabor = saborRepository.save(Sabor.builder()
-                    .nome("Sabor Um")
-                    .tipo("salgado")
-                    .precoM(10.0)
-                    .precoG(20.0)
-                    .disponivel(false)
-                    .build());
+
+            saborCadastraService.cadastrarSabor(saborPostPutRequestDTO, estabelecimento.getId(), estabelecimento.getCodigoAcesso());
+
         }
 
         @AfterEach
@@ -586,7 +620,6 @@ public class ClienteControllerTests {
         void quandoDemonstramosInteresseEmSaborValido() throws Exception {
             // Arrange
             // nenhuma necessidade além do setup()
-
             // Act
             String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -602,6 +635,37 @@ public class ClienteControllerTests {
             assertAll(
                     () -> assertFalse(resultado.isDisponivel()),
                     () -> assertEquals(1, resultado.getClientesInteressados().size())
+            );
+        }
+
+        @Test
+        @DisplayName("Quando varios clientes demonstram interesse em um sabor válido")
+        void quandoVariosClientesDemonstramInteresseEmSaborValido() throws Exception {
+            // Arrange
+            // nenhuma necessidade além do setup()
+            // Act
+            driver.perform(put(URI_CLIENTES + "/" + cliente2.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente2.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            String responseJsonString = driver.perform(put(URI_CLIENTES + "/" + cliente.getId() + "/demonstrarInteresse")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("codigoAcesso", cliente.getCodigoAcesso())
+                            .param("saborId", sabor.getId().toString()))
+                    .andExpect(status().isOk()) // Codigo 200
+                    .andDo(print())
+                    .andReturn().getResponse().getContentAsString();
+
+            SaborResponseDTO resultado = objectMapper.readValue(responseJsonString, SaborResponseDTO.SaborResponseDTOBuilder.class).build();
+
+            // Assert
+            assertAll(
+                    () -> assertFalse(resultado.isDisponivel()),
+                    () -> assertEquals(2, resultado.getClientesInteressados().size())
             );
         }
 
